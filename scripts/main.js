@@ -4,6 +4,7 @@ const toolBar = document.querySelector(".toolbar")
 let drawingRn = false;
 var color = "#000000";
 var mode = "pointer";
+var shapes = [];
 
 function canvasSize(){
     canvas.width = window.innerWidth*7.5/10;
@@ -14,11 +15,16 @@ canvasSize();
 window.addEventListener('resize', canvasSize);
 toolBar.addEventListener('click', (event) => {
     if (event.target.className == "tool"){
+        let toolbarelements = document.getElementsByClassName("tool");
+        for (let i = toolbarelements.length - 1; i >= 0; i--){
+            toolbarelements[i].style.background = "#FFFFFF";
+        }
         if (event.target.id == "undo"){
             ctx.restore();
             ctx.restore();
         } else {
             mode = event.target.id;
+            event.target.style.background = "#a1a1a1";
             console.log(mode);
         }
     }
