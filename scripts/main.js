@@ -16,6 +16,7 @@ toolBar.addEventListener('click', (event) => {
     if (event.target.className == "tool"){
         if (event.target.id == "undo"){
             ctx.restore();
+            ctx.restore();
         } else {
             mode = event.target.id;
             console.log(mode);
@@ -29,14 +30,22 @@ canvas.addEventListener('mousedown', (event) => {
     
     } else if (mode == "brush"){
         ctx.fillStyle = color;
-        ctx.fillRect(event.clientX, event.clientY, 7, 7);
+        ctx.fillRect(event.clientX, event.clientY, 2, 2);
         console.log("Drawing being made");
+    } else if (mode == "line"){
+            ctx.fillStyle = color;
+            ctx.moveTo(event.clientX, event.clientY);
+            console.log("Drawing being made");
     }
 });
 canvas.addEventListener('mouseup', (event) => {
     drawingRn = false;
     console.log("Drawing stopped");
     ctx.save();
+    if (mode == "line"){
+        ctx.lineTo(event.clientX, event.clientY);
+        ctx.stroke();
+    }
 });
 canvas.addEventListener('mousemove', (event) => {
     if (drawingRn){
@@ -44,8 +53,8 @@ canvas.addEventListener('mousemove', (event) => {
             
         } else if (mode == "brush"){
             ctx.fillStyle = color;
-            ctx.fillRect(event.clientX, event.clientY, 7, 7);
+            ctx.fillRect(event.clientX, event.clientY, 2, 2);
             console.log("Drawing being made");
-        }
+        } 
     }
 });
