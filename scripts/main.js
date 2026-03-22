@@ -4,6 +4,7 @@ const toolBar = document.querySelector(".toolbar")
 let drawingRn = false;
 var color = "#000000";
 var mode = "pointer";
+var tempCoords = [0, 0];
 var shapes = [];
 
 function canvasSize(){
@@ -42,6 +43,13 @@ canvas.addEventListener('mousedown', (event) => {
             ctx.fillStyle = color;
             ctx.moveTo(event.clientX, event.clientY);
             console.log("Drawing being made");
+    } else if (mode == "rect"){
+            ctx.fillStyle = color;
+            ctx.moveTo(event.clientX, event.clientY);
+            tempCoords[0] = event.clientX;
+            tempCoords[1] = event.clientY;
+            console.log(tempCoords);
+            console.log("Drawing being made");
     }
 });
 canvas.addEventListener('mouseup', (event) => {
@@ -49,6 +57,13 @@ canvas.addEventListener('mouseup', (event) => {
     console.log("Drawing stopped");
     ctx.save();
     if (mode == "line"){
+        ctx.lineTo(event.clientX, event.clientY);
+        ctx.stroke();
+    } if (mode == "rect"){
+        ctx.lineTo(tempCoords[0], event.clientY);
+        ctx.lineTo(event.clientX, event.clientY);
+        ctx.moveTo(tempCoords[0], tempCoords[1]);
+        ctx.lineTo(event.clientX, tempCoords[1]);
         ctx.lineTo(event.clientX, event.clientY);
         ctx.stroke();
     }
