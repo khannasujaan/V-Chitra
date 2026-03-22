@@ -9,7 +9,30 @@
     </head>
     <body>
         <header>
+            <div id="headGrid" z-index="10">
+                <a href="./index.html"><img src="./assets/logo.png" id="headerlogo"/></a>
+                <div class="toolbar">
+                    <p class="tool" id="pointer" onclick="function changemode(){mode='pointer';console.log(mode);} changemode(); return false">pointer</p>
+                    <p class="tool" id="brush" onclick="function changemode(){mode='brush';console.log(mode);} changemode(); return false;">brush</p>
+                    <p class="tool" id="square" onclick="function changemode(){mode='square';console.log(mode);} changemode(); return false;">square</p>
+                    <p class="tool" id="rect" onclick="function changemode(){mode='rect';console.log(mode);} changemode(); return false;">rectangle</p>
+                    <p class="tool" id="circle" onclick="function changemode(){mode='circle';console.log(mode);} changemode(); return false;">circle</p>
+                    <p class="tool" id="tri" onclick="function changemode(){mode='triangle';console.log(mode);} changemode(); return false;">triangle</p>
+                    <p class="tool" id="text" onclick="function changemode(){mode='textbox';console.log(mode);} changemode(); return false;">textbox</p>
+                    <p class="tool" id="undo" onclick="">undo</p>
+                </div>
+            </div>
+
         </header>
+        <div class="canvasArea">
+
+            <canvas id="drawCanvas">
+                
+            </canvas>
+            <div class="colorSelectorPanel">
+
+            </div>
+        </div>
 
         
     </body>
