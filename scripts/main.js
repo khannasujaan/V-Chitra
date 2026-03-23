@@ -6,19 +6,24 @@ var color = "#000000";
 var mode = "pointer";
 var tempCoords = [0, 0];
 var shapes = [];
-var stateStack = [canvas.toDataURL()];
-
 function canvasSize(){
     canvas.width = window.innerWidth*7.5/10;
     canvas.height = window.innerHeight;
 }
 
 canvasSize();
+var stateStack = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
 toolBar.addEventListener('click', (event) => {
     if (event.target.className == "tool"){
         if (event.target.id == "undo"){
-            ctx.drawImage(stateStack[0]);
-            stateStack.pop();
+            console.log("undo");
+            if (stateStack.length >= 2){
+                stateStack.pop();
+                ctx.putImageData(stateStack[stateStack.length-1], 0, 0);
+            } else {
+                ctx.putImageData(stateStack[0], 0, 0);
+            }
+            console.log(stateStack);
         } else {
             let toolbarelements = document.getElementsByClassName("tool");
             for (let i = toolbarelements.length - 1; i >= 0; i--){
@@ -37,16 +42,19 @@ canvas.addEventListener('mousedown', (event) => {
     
     } else if (mode == "brush"){
         ctx.fillStyle = color;
+        ctx.beginPath();
         ctx.fillRect(event.clientX, event.clientY, 2, 2);
         tempCoords = [event.clientX, event.clientY];
         ctx.moveTo(tempCoords[0], tempCoords[1]);
         console.log("Drawing being made");
     } else if (mode == "line"){
         ctx.fillStyle = color;
+        ctx.beginPath();
         ctx.moveTo(event.clientX, event.clientY);
         console.log("Drawing being made");
     } else if (mode == "rect"){
         ctx.fillStyle = color;
+        ctx.beginPath();
         ctx.moveTo(event.clientX, event.clientY);
         tempCoords[0] = event.clientX;
         tempCoords[1] = event.clientY;
@@ -54,6 +62,7 @@ canvas.addEventListener('mousedown', (event) => {
         console.log("Drawing being made");
     } else if (mode == "square"){
         ctx.fillStyle = color;
+        ctx.beginPath();
         ctx.moveTo(event.clientX, event.clientY);
         tempCoords[0] = event.clientX;
         tempCoords[1] = event.clientY;
@@ -70,6 +79,7 @@ canvas.addEventListener('mousedown', (event) => {
         ctx.fillStyle = color;
         tempCoords[0] = event.clientX;
         tempCoords[1] = event.clientY;
+        ctx.beginPath();
         console.log(tempCoords);
         console.log("Drawing being made");
     }
@@ -77,12 +87,16 @@ canvas.addEventListener('mousedown', (event) => {
 canvas.addEventListener('mouseup', (event) => {
     drawingRn = false;
     console.log("Drawing stopped");
-    stateStack.push(canvas.toDataURL());
+    console.log(stateStack[0]);
+    console.log(stateStack[1]);
+    console.log(stateStack[2]);
+    console.log(stateStack[3]);
     if (mode == 'brush'){
-
+        stateStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     } else if (mode == "line"){
         ctx.lineTo(event.clientX, event.clientY);
         ctx.stroke();
+        stateStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     } else if (mode == "rect"){
         ctx.lineTo(tempCoords[0], event.clientY);
         ctx.lineTo(event.clientX, event.clientY);
@@ -90,6 +104,7 @@ canvas.addEventListener('mouseup', (event) => {
         ctx.lineTo(event.clientX, tempCoords[1]);
         ctx.lineTo(event.clientX, event.clientY);
         ctx.stroke();
+        stateStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     } else if (mode == "square"){
         if (Math.abs(event.clientX - tempCoords[0]) > Math.abs(event.clientY - tempCoords[1])){
             ctx.lineTo(tempCoords[0], event.clientY);
@@ -106,17 +121,20 @@ canvas.addEventListener('mouseup', (event) => {
             
         }
         ctx.stroke();
-
+        stateStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+        
     } else if (mode == "circle"){
         let radius = Math.sqrt((event.clientX - tempCoords[0])**2 + (event.clientY - tempCoords[1])**2);
         ctx.arc(tempCoords[0], tempCoords[1], radius, 0, 2*Math.PI);
         ctx.stroke();
+        stateStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     } else if (mode == "tri"){
         ctx.moveTo(tempCoords[0], event.clientY);
         ctx.lineTo(event.clientX, event.clientY);
         ctx.lineTo((event.clientX+tempCoords[0])/2, tempCoords[1]);
         ctx.lineTo(tempCoords[0], event.clientY);
         ctx.stroke();
+        stateStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     }
 });
 canvas.addEventListener('mousemove', (event) => {
