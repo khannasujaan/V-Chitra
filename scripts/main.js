@@ -1,6 +1,7 @@
 const canvas = document.getElementById("drawCanvas");
 const ctx = canvas.getContext('2d');
-const toolBar = document.querySelector(".toolbar")
+const toolBar = document.querySelector(".toolbar");
+const colors = document.querySelector(".colorGrid");
 let drawingRn = false;
 var color = "#000000";
 var mode = "pointer";
@@ -35,25 +36,42 @@ toolBar.addEventListener('click', (event) => {
         }
     }
 });
+colors.addEventListener('click', (event) => {
+    console.log("Colors clicked");
+    if (event.target.className == "color"){
+        let allcolors = document.getElementsByClassName("color");
+        for (let i = allcolors.length - 1; i >= 0; i--){
+            allcolors[i].style.border = "0.15rem solid transparent";
+        }
+        color = event.target.id;
+        if (color == "black"){
+            event.target.style.border = "0.15rem solid white";
+        } else {
+            event.target.style.border = "0.15rem solid";
+        }
+    }
+    console.log(event.target.id);
+    console.log(color);
+});
 
 canvas.addEventListener('mousedown', (event) => {
     drawingRn = true;
     if (mode=="pointer"){
     
     } else if (mode == "brush"){
-        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
         ctx.beginPath();
         ctx.fillRect(event.clientX, event.clientY, 2, 2);
         tempCoords = [event.clientX, event.clientY];
         ctx.moveTo(tempCoords[0], tempCoords[1]);
         console.log("Drawing being made");
     } else if (mode == "line"){
-        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
         ctx.beginPath();
         ctx.moveTo(event.clientX, event.clientY);
         console.log("Drawing being made");
     } else if (mode == "rect"){
-        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
         ctx.beginPath();
         ctx.moveTo(event.clientX, event.clientY);
         tempCoords[0] = event.clientX;
@@ -61,7 +79,7 @@ canvas.addEventListener('mousedown', (event) => {
         console.log(tempCoords);
         console.log("Drawing being made");
     } else if (mode == "square"){
-        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
         ctx.beginPath();
         ctx.moveTo(event.clientX, event.clientY);
         tempCoords[0] = event.clientX;
@@ -69,14 +87,14 @@ canvas.addEventListener('mousedown', (event) => {
         console.log(tempCoords);
         console.log("Drawing being made");
     } else if (mode == "circle"){
-        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
         ctx.beginPath();
         tempCoords[0] = event.clientX;
         tempCoords[1] = event.clientY;
         console.log(tempCoords);
         console.log("Drawing being made");
     } else if (mode == "tri"){
-        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
         tempCoords[0] = event.clientX;
         tempCoords[1] = event.clientY;
         ctx.beginPath();

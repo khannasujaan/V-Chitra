@@ -56,7 +56,10 @@
     margin-left: 5rem;
     margin-right: 5rem;
 }
+
 .colorGrid {
+    
+    gap: 0.25rem;
     margin-left: 5rem;
     margin-right: 5rem;
     margin-top: 2rem;
@@ -66,4 +69,9 @@
     "color color color"
     "color color color";
     grid-template-columns: repeat(3, 1fr);
+}
+
+.color{
+    box-sizing: border-box;
+    border: 0.15rem solid transparent;
 }
