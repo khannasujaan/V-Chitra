@@ -1,7 +1,6 @@
 const canvas = document.getElementById("drawCanvas");
 const ctx = canvas.getContext('2d');
 const toolBar = document.querySelector(".toolbar");
-const colors = document.querySelector(".colorGrid");
 const lineWidthSlider = document.getElementById("lineWidthSlider");
 let drawingRn = false;
 var lineWidth = 1;
@@ -11,7 +10,7 @@ var tempCoords = [0, 0];
 var shapes = [];
 var brushArray = new Array();
 function canvasSize(){
-    canvas.width = window.innerWidth*7.5/10;
+    canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
 
@@ -124,24 +123,6 @@ window.addEventListener('keydown', (event) => {
             lineWidth--;
             document.getElementById("displayLineWidth").innerHTML = lineWidth;
         }
-    } else if (event.key == '1'){
-        document.getElementById('red').click()
-    } else if (event.key == '2'){
-        document.getElementById('orange').click()
-    } else if (event.key == '3'){
-        document.getElementById('yellow').click()
-    } else if (event.key == '4'){
-        document.getElementById('green').click()
-    } else if (event.key == '5'){
-        document.getElementById('cyan').click()
-    } else if (event.key == '6'){
-        document.getElementById('blue').click()
-    } else if (event.key == '7'){
-        document.getElementById('voilet').click()
-    } else if (event.key == '8'){
-        document.getElementById('white').click()
-    } else if (event.key == '9'){
-        document.getElementById('black').click()
     }
 });
 toolBar.addEventListener('click', (event) => {
@@ -168,22 +149,8 @@ lineWidthSlider.addEventListener('input', (event) => {
     lineWidth = event.target.value;
     document.getElementById("displayLineWidth").innerHTML = lineWidth;
 });
-colors.addEventListener('click', (event) => {
-    console.log("Colors clicked");
-    if (event.target.className == "color"){
-        let allcolors = document.getElementsByClassName("color");
-        for (let i = allcolors.length - 1; i >= 0; i--){
-            allcolors[i].style.border = "0.15rem solid transparent";
-        }
-        color = event.target.id;
-        if (color == "black"){
-            event.target.style.border = "0.15rem solid white";
-        } else {
-            event.target.style.border = "0.15rem solid";
-        }
-    }
-    console.log(event.target.id);
-    console.log(color);
+document.getElementById("color").addEventListener('input', (event) => {
+    color = event.target.value;
 });
 
 canvas.addEventListener('mousedown', (event) => {
@@ -313,7 +280,7 @@ canvas.addEventListener('mouseup', (event) => {
     drawCanvas(shapes);
     
 });
-canvas.addEventListener('mousemove', (event) => {
+window.addEventListener('mousemove', (event) => {
     if (drawingRn){
         console.log("pointer moving");
         drawCanvas(shapes);

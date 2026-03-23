@@ -22,36 +22,19 @@
                     <p class="tool" id="text">textbox</p>
                     <p class="tool" id="undo">undo</p>
                 </div>
+                <div class="lineColorWidth">
+                    <input type="color" id="color" value="black">
+                    <div class="lineWidth">
+                        <input type="range" min="1" max="16" value="1" id="lineWidthSlider">
+                        <p id="displayLineWidth">1</p>
+                    </div>
+                </div>
             </div>
-
         </header>
         <div class="canvasArea">
-
             <canvas id="drawCanvas">
-                
             </canvas>
-            <div class="colorSelectorPanel">
-                <div class="colorGrid">
-                    <p class="color" id="red" style="background: red;">‎</p>
-                    <p class="color" id="orange" style="background: orange;">‎</p>
-                    <p class="color" id="yellow" style="background: yellow;"‎></p>
-                    <p class="color" id="green" style="background: green;">‎</p>
-                    <p class="color" id="cyan" style="background: cyan;">‎</p>
-                    <p class="color" id="blue" style="background: blue;">‎</p>
-                    <p class="color" id="violet" style="background: violet;">‎</p>
-                    <p class="color" id="white" style="background: white;">‎</p>
-                    <p class="color" id="black" style="background: black; border : 0.15rem solid white;">‎</p>
-                </div>
-                <!-- <input> -->
-                <div class="lineWidth">
-                    <input type="range" min="1" max="16" value="1" id="lineWidthSlider">
-                    <p id="displayLineWidth">1</p>
-                </div>
-
-            </div>
         </div>
-
-        
     </body>
     <script src="./scripts/main.js" defer></script>
 </html>
