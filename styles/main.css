@@ -75,3 +75,8 @@
     box-sizing: border-box;
     border: 0.15rem solid transparent;
 }
+
+.lineWidth {
+    display: flex;
+    flex-wrap: wrap;
+}

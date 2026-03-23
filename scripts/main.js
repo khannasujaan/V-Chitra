@@ -2,7 +2,9 @@ const canvas = document.getElementById("drawCanvas");
 const ctx = canvas.getContext('2d');
 const toolBar = document.querySelector(".toolbar");
 const colors = document.querySelector(".colorGrid");
+const lineWidthSlider = document.getElementById("lineWidthSlider");
 let drawingRn = false;
+var lineWidth = 1;
 var color = "#000000";
 var mode = "pointer";
 var tempCoords = [0, 0];
@@ -36,6 +38,10 @@ toolBar.addEventListener('click', (event) => {
         }
     }
 });
+lineWidthSlider.addEventListener('input', (event) => {
+    lineWidth = event.target.value;
+    document.getElementById("displayLineWidth").innerHTML = lineWidth;
+});
 colors.addEventListener('click', (event) => {
     console.log("Colors clicked");
     if (event.target.className == "color"){
@@ -61,6 +67,7 @@ canvas.addEventListener('mousedown', (event) => {
     } else if (mode == "brush"){
         ctx.strokeStyle = color;
         ctx.beginPath();
+        ctx.lineWidth = lineWidth;
         ctx.fillRect(event.clientX, event.clientY, 2, 2);
         tempCoords = [event.clientX, event.clientY];
         ctx.moveTo(tempCoords[0], tempCoords[1]);
@@ -68,11 +75,13 @@ canvas.addEventListener('mousedown', (event) => {
     } else if (mode == "line"){
         ctx.strokeStyle = color;
         ctx.beginPath();
+        ctx.lineWidth = lineWidth;
         ctx.moveTo(event.clientX, event.clientY);
         console.log("Drawing being made");
     } else if (mode == "rect"){
         ctx.strokeStyle = color;
         ctx.beginPath();
+        ctx.lineWidth = lineWidth;
         ctx.moveTo(event.clientX, event.clientY);
         tempCoords[0] = event.clientX;
         tempCoords[1] = event.clientY;
@@ -81,6 +90,7 @@ canvas.addEventListener('mousedown', (event) => {
     } else if (mode == "square"){
         ctx.strokeStyle = color;
         ctx.beginPath();
+        ctx.lineWidth = lineWidth;
         ctx.moveTo(event.clientX, event.clientY);
         tempCoords[0] = event.clientX;
         tempCoords[1] = event.clientY;
@@ -89,6 +99,7 @@ canvas.addEventListener('mousedown', (event) => {
     } else if (mode == "circle"){
         ctx.strokeStyle = color;
         ctx.beginPath();
+        ctx.lineWidth = lineWidth;
         tempCoords[0] = event.clientX;
         tempCoords[1] = event.clientY;
         console.log(tempCoords);
@@ -98,6 +109,7 @@ canvas.addEventListener('mousedown', (event) => {
         tempCoords[0] = event.clientX;
         tempCoords[1] = event.clientY;
         ctx.beginPath();
+        ctx.lineWidth = lineWidth;
         console.log(tempCoords);
         console.log("Drawing being made");
     }
