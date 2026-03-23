@@ -16,6 +16,56 @@ function canvasSize(){
 
 canvasSize();
 var stateStack = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
+window.addEventListener('keydown', (event) => {
+    console.log(event.key);
+    if ((event.metaKey || event.ctrlKey)&&event.key=='z'){
+        document.getElementById('undo').click();
+    } else if (event.key == 'p'){
+        document.getElementById('pointer').click();
+    } else if (event.key == 'b'){
+        document.getElementById('brush').click();
+    } else if (event.key == 'l'){
+        document.getElementById('line').click();
+    } else if (event.key == 's'){
+        document.getElementById('square').click();
+    } else if (event.key == 'c'){
+        document.getElementById('circle').click();
+    } else if (event.key == 'r'){
+        document.getElementById('rect').click();
+    } else if (event.key == 't'){
+        document.getElementById('tri').click();
+    } else if (event.key == '+'){
+        if (lineWidthSlider.value<16){
+            lineWidthSlider.value++;
+            lineWidth++;
+            document.getElementById("displayLineWidth").innerHTML = lineWidth;
+        }
+    } else if (event.key == '-'){
+        if (lineWidthSlider.value>1){
+            lineWidthSlider.value--;
+            lineWidth--;
+            document.getElementById("displayLineWidth").innerHTML = lineWidth;
+        }
+    } else if (event.key == '1'){
+        document.getElementById('red').click()
+    } else if (event.key == '2'){
+        document.getElementById('orange').click()
+    } else if (event.key == '3'){
+        document.getElementById('yellow').click()
+    } else if (event.key == '4'){
+        document.getElementById('green').click()
+    } else if (event.key == '5'){
+        document.getElementById('cyan').click()
+    } else if (event.key == '6'){
+        document.getElementById('blue').click()
+    } else if (event.key == '7'){
+        document.getElementById('voilet').click()
+    } else if (event.key == '8'){
+        document.getElementById('white').click()
+    } else if (event.key == '9'){
+        document.getElementById('black').click()
+    }
+});
 toolBar.addEventListener('click', (event) => {
     if (event.target.className == "tool"){
         if (event.target.id == "undo"){

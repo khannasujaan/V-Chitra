@@ -80,3 +80,8 @@
     display: flex;
     flex-wrap: wrap;
 }
+
+#lineWidthSlider {
+    margin-left: 5rem;
+    margin-right: 1rem;
+}
