@@ -10,6 +10,7 @@
     grid-template-columns: 2fr 4fr 4fr;
     position: absolute;
     width: 100%;
+    z-index:10;
 }
 
 .toolbar {
@@ -43,6 +44,26 @@
 } */
 
 .colorSelectorPanel {
+    display: flex;
+    flex-direction: column;
+    -ms-flex-align: center;
+    gap: 3rem;
     background-color: #C2C269;
     width: 25%;
+    z-index:20;
+}
+.colorSelectorPanel input{
+    margin-left: 5rem;
+    margin-right: 5rem;
+}
+.colorGrid {
+    margin-left: 5rem;
+    margin-right: 5rem;
+    margin-top: 2rem;
+    display: grid;
+    grid-template-areas:
+    "color color color"
+    "color color color"
+    "color color color";
+    grid-template-columns: repeat(3, 1fr);
 }
