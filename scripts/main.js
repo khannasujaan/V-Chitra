@@ -6,6 +6,7 @@ var color = "#000000";
 var mode = "pointer";
 var tempCoords = [0, 0];
 var shapes = [];
+var stateStack = [canvas.toDataURL()];
 
 function canvasSize(){
     canvas.width = window.innerWidth*7.5/10;
@@ -13,12 +14,11 @@ function canvasSize(){
 }
 
 canvasSize();
-window.addEventListener('resize', canvasSize);
 toolBar.addEventListener('click', (event) => {
     if (event.target.className == "tool"){
         if (event.target.id == "undo"){
-            ctx.restore();
-            ctx.restore();
+            ctx.drawImage(stateStack[0]);
+            stateStack.pop();
         } else {
             let toolbarelements = document.getElementsByClassName("tool");
             for (let i = toolbarelements.length - 1; i >= 0; i--){
@@ -52,12 +52,19 @@ canvas.addEventListener('mousedown', (event) => {
             tempCoords[1] = event.clientY;
             console.log(tempCoords);
             console.log("Drawing being made");
+        } else if (mode == "square"){
+            ctx.fillStyle = color;
+            ctx.moveTo(event.clientX, event.clientY);
+            tempCoords[0] = event.clientX;
+            tempCoords[1] = event.clientY;
+            console.log(tempCoords);
+            console.log("Drawing being made");
     }
 });
 canvas.addEventListener('mouseup', (event) => {
     drawingRn = false;
     console.log("Drawing stopped");
-    ctx.save();
+    stateStack.push(canvas.toDataURL());
     if (mode == 'brush'){
 
     } else if (mode == "line"){
@@ -70,6 +77,23 @@ canvas.addEventListener('mouseup', (event) => {
         ctx.lineTo(event.clientX, tempCoords[1]);
         ctx.lineTo(event.clientX, event.clientY);
         ctx.stroke();
+    } else if (mode == "square"){
+        if (Math.abs(event.clientX - tempCoords[0]) > Math.abs(event.clientY - tempCoords[1])){
+            ctx.lineTo(tempCoords[0], event.clientY);
+            ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], event.clientY);
+            ctx.moveTo(tempCoords[0], tempCoords[1]);
+            ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], tempCoords[1]);
+            ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], event.clientY);
+        } else {
+            ctx.lineTo(event.clientX, tempCoords[1]);
+            ctx.lineTo(event.clientX, event.clientX - tempCoords[0] + tempCoords[1]);
+            ctx.moveTo(tempCoords[0], tempCoords[1]);
+            ctx.lineTo(tempCoords[0], tempCoords[1] + event.clientX - tempCoords[0]);
+            ctx.lineTo(event.clientX, event.clientX - tempCoords[0] + tempCoords[1]);
+            
+        }
+        ctx.stroke();
+
     }
 });
 canvas.addEventListener('mousemove', (event) => {
