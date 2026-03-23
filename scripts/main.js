@@ -42,23 +42,36 @@ canvas.addEventListener('mousedown', (event) => {
         ctx.moveTo(tempCoords[0], tempCoords[1]);
         console.log("Drawing being made");
     } else if (mode == "line"){
-            ctx.fillStyle = color;
-            ctx.moveTo(event.clientX, event.clientY);
-            console.log("Drawing being made");
+        ctx.fillStyle = color;
+        ctx.moveTo(event.clientX, event.clientY);
+        console.log("Drawing being made");
     } else if (mode == "rect"){
-            ctx.fillStyle = color;
-            ctx.moveTo(event.clientX, event.clientY);
-            tempCoords[0] = event.clientX;
-            tempCoords[1] = event.clientY;
-            console.log(tempCoords);
-            console.log("Drawing being made");
-        } else if (mode == "square"){
-            ctx.fillStyle = color;
-            ctx.moveTo(event.clientX, event.clientY);
-            tempCoords[0] = event.clientX;
-            tempCoords[1] = event.clientY;
-            console.log(tempCoords);
-            console.log("Drawing being made");
+        ctx.fillStyle = color;
+        ctx.moveTo(event.clientX, event.clientY);
+        tempCoords[0] = event.clientX;
+        tempCoords[1] = event.clientY;
+        console.log(tempCoords);
+        console.log("Drawing being made");
+    } else if (mode == "square"){
+        ctx.fillStyle = color;
+        ctx.moveTo(event.clientX, event.clientY);
+        tempCoords[0] = event.clientX;
+        tempCoords[1] = event.clientY;
+        console.log(tempCoords);
+        console.log("Drawing being made");
+    } else if (mode == "circle"){
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        tempCoords[0] = event.clientX;
+        tempCoords[1] = event.clientY;
+        console.log(tempCoords);
+        console.log("Drawing being made");
+    } else if (mode == "tri"){
+        ctx.fillStyle = color;
+        tempCoords[0] = event.clientX;
+        tempCoords[1] = event.clientY;
+        console.log(tempCoords);
+        console.log("Drawing being made");
     }
 });
 canvas.addEventListener('mouseup', (event) => {
@@ -94,6 +107,16 @@ canvas.addEventListener('mouseup', (event) => {
         }
         ctx.stroke();
 
+    } else if (mode == "circle"){
+        let radius = Math.sqrt((event.clientX - tempCoords[0])**2 + (event.clientY - tempCoords[1])**2);
+        ctx.arc(tempCoords[0], tempCoords[1], radius, 0, 2*Math.PI);
+        ctx.stroke();
+    } else if (mode == "tri"){
+        ctx.moveTo(tempCoords[0], event.clientY);
+        ctx.lineTo(event.clientX, event.clientY);
+        ctx.lineTo((event.clientX+tempCoords[0])/2, tempCoords[1]);
+        ctx.lineTo(tempCoords[0], event.clientY);
+        ctx.stroke();
     }
 });
 canvas.addEventListener('mousemove', (event) => {
