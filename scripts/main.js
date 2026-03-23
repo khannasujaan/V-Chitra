@@ -53,8 +53,8 @@ function drawCanvas(stack){
             ctx.beginPath();
             ctx.strokeStyle = stack[i].get("color");
             ctx.lineWidth = stack[i].get("linewidth");
-            let radius = Math.sqrt((stack[i].get("final")[0]- stack[i].get("initial")[0])**2 + (stack[i].get("final")[1]- stack[i].get("initial")[1])**2);
-            ctx.arc(stack[i].get("initial")[0], stack[i].get("initial")[1], radius, 0, 2*Math.PI);
+            let diameter = Math.sqrt((stack[i].get("final")[0]- stack[i].get("initial")[0])**2 + (stack[i].get("final")[1]- stack[i].get("initial")[1])**2);
+            ctx.arc((stack[i].get("initial")[0]+stack[i].get("final")[0])/2, (stack[i].get("initial")[1]+stack[i].get("final")[1])/2, diameter/2, 0, 2*Math.PI);
             ctx.stroke();
         } else if (stack[i].get("type")=="tri"){
             ctx.beginPath();
@@ -71,18 +71,33 @@ function drawCanvas(stack){
             ctx.lineWidth = stack[i].get("linewidth");
             ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
             if (Math.abs(stack[i].get("final")[0] - stack[i].get("initial")[0]) > Math.abs(stack[i].get("final")[1] - stack[i].get("initial")[1])){
-                ctx.lineTo(stack[i].get("initial")[0], stack[i].get("final")[1]);
-                ctx.lineTo(stack[i].get("final")[1] - stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("final")[1]);
-                ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
-                ctx.lineTo(stack[i].get("final")[1] - stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("initial")[1]);
-                ctx.lineTo(stack[i].get("final")[1] - stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("final")[1]);
+                if ((stack[i].get("final")[0] - stack[i].get("initial")[0])*((stack[i].get("final")[1] - stack[i].get("initial")[1]))>0){
+                    ctx.lineTo(stack[i].get("initial")[0], stack[i].get("final")[1]);
+                    ctx.lineTo(stack[i].get("final")[1] - stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("final")[1]);
+                    ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
+                    ctx.lineTo(stack[i].get("final")[1] - stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("initial")[1]);
+                    ctx.lineTo(stack[i].get("final")[1] - stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("final")[1]);
+                } else {
+                    ctx.lineTo(stack[i].get("initial")[0], stack[i].get("final")[1]);
+                    ctx.lineTo(-stack[i].get("final")[1] + stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("final")[1]);
+                    ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
+                    ctx.lineTo(-stack[i].get("final")[1] + stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("initial")[1]);
+                    ctx.lineTo(-stack[i].get("final")[1] + stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("final")[1]);
+                }
             } else {
-                ctx.lineTo(stack[i].get("final")[0], stack[i].get("initial")[1]);
-                ctx.lineTo(stack[i].get("final")[0], stack[i].get("final")[0] - stack[i].get("initial")[0] + stack[i].get("initial")[1]);
-                ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
-                ctx.lineTo(stack[i].get("initial")[0], stack[i].get("initial")[1] + stack[i].get("final")[0] - stack[i].get("initial")[0]);
-                ctx.lineTo(stack[i].get("final")[0], stack[i].get("final")[0] - stack[i].get("initial")[0] + stack[i].get("initial")[1]);
-                
+                if ((stack[i].get("final")[0] - stack[i].get("initial")[0])*((stack[i].get("final")[1] - stack[i].get("initial")[1]))>0){
+                    ctx.lineTo(stack[i].get("final")[0], stack[i].get("initial")[1]);
+                    ctx.lineTo(stack[i].get("final")[0], stack[i].get("final")[0] - stack[i].get("initial")[0] + stack[i].get("initial")[1]);
+                    ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
+                    ctx.lineTo(stack[i].get("initial")[0], stack[i].get("initial")[1] + stack[i].get("final")[0] - stack[i].get("initial")[0]);
+                    ctx.lineTo(stack[i].get("final")[0], stack[i].get("final")[0] - stack[i].get("initial")[0] + stack[i].get("initial")[1]);
+                } else {
+                    ctx.lineTo(stack[i].get("final")[0], stack[i].get("initial")[1]);
+                    ctx.lineTo(stack[i].get("final")[0], -stack[i].get("final")[0] + stack[i].get("initial")[0] + stack[i].get("initial")[1]);
+                    ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
+                    ctx.lineTo(stack[i].get("initial")[0], stack[i].get("initial")[1] - stack[i].get("final")[0] + stack[i].get("initial")[0]);
+                    ctx.lineTo(stack[i].get("final")[0], -stack[i].get("final")[0] + stack[i].get("initial")[0] + stack[i].get("initial")[1]);
+                }  
             }
             ctx.stroke();
         }
@@ -313,24 +328,39 @@ window.addEventListener('mousemove', (event) => {
             ctx.stroke();
         } else if (mode == "square"){
             if (Math.abs(event.clientX - tempCoords[0]) > Math.abs(event.clientY - tempCoords[1])){
-                ctx.lineTo(tempCoords[0], event.clientY);
-                ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], event.clientY);
-                ctx.moveTo(tempCoords[0], tempCoords[1]);
-                ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], tempCoords[1]);
-                ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], event.clientY);
+                if ((event.clientX - tempCoords[0])*((event.clientY - tempCoords[1]))>0){
+                    ctx.lineTo(tempCoords[0], event.clientY);
+                    ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], event.clientY);
+                    ctx.moveTo(tempCoords[0], tempCoords[1]);
+                    ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], tempCoords[1]);
+                    ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], event.clientY);
+                } else {
+                    ctx.lineTo(tempCoords[0], event.clientY);
+                    ctx.lineTo(-event.clientY + tempCoords[1] + tempCoords[0], event.clientY);
+                    ctx.moveTo(tempCoords[0], tempCoords[1]);
+                    ctx.lineTo(-event.clientY + tempCoords[1] + tempCoords[0], tempCoords[1]);
+                    ctx.lineTo(-event.clientY + tempCoords[1] + tempCoords[0], event.clientY);
+                }
             } else {
-                ctx.lineTo(event.clientX, tempCoords[1]);
-                ctx.lineTo(event.clientX, event.clientX - tempCoords[0] + tempCoords[1]);
-                ctx.moveTo(tempCoords[0], tempCoords[1]);
-                ctx.lineTo(tempCoords[0], tempCoords[1] + event.clientX - tempCoords[0]);
-                ctx.lineTo(event.clientX, event.clientX - tempCoords[0] + tempCoords[1]);
-                
+                if ((event.clientX - tempCoords[0])*((event.clientY - tempCoords[1]))>0){
+                    ctx.lineTo(event.clientX, tempCoords[1]);
+                    ctx.lineTo(event.clientX, event.clientX - tempCoords[0] + tempCoords[1]);
+                    ctx.moveTo(tempCoords[0], tempCoords[1]);
+                    ctx.lineTo(tempCoords[0], tempCoords[1] + event.clientX - tempCoords[0]);
+                    ctx.lineTo(event.clientX, event.clientX - tempCoords[0] + tempCoords[1]);
+                } else {
+                    ctx.lineTo(event.clientX, tempCoords[1]);
+                    ctx.lineTo(event.clientX, -event.clientX + tempCoords[0] + tempCoords[1]);
+                    ctx.moveTo(tempCoords[0], tempCoords[1]);
+                    ctx.lineTo(tempCoords[0], tempCoords[1] - event.clientX + tempCoords[0]);
+                    ctx.lineTo(event.clientX, -event.clientX + tempCoords[0] + tempCoords[1]);
+                }  
             }
             ctx.stroke();
             
         } else if (mode == "circle"){
-            let radius = Math.sqrt((event.clientX - tempCoords[0])**2 + (event.clientY - tempCoords[1])**2);
-            ctx.arc(tempCoords[0], tempCoords[1], radius, 0, 2*Math.PI);
+            let diameter = Math.sqrt((event.clientX - tempCoords[0])**2 + (event.clientY - tempCoords[1])**2);
+            ctx.arc((tempCoords[0]+event.clientX)/2, (tempCoords[1]+event.clientY)/2, diameter/2, 0, 2*Math.PI);
             ctx.stroke();
         } else if (mode == "tri"){
             ctx.moveTo(tempCoords[0], event.clientY);
