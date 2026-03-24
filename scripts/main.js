@@ -10,11 +10,13 @@ if(localStorage.getItem("stack")==null){
     var mode = "pointer";
     var color = "#000000";
     var lineWidth = 1;
+    var lightmode = 1;
 } else {
     var shapes = JSON.parse(localStorage.getItem("stack"));
     var mode = localStorage.getItem("mode");
     var color = localStorage.getItem("color");
     var lineWidth = localStorage.getItem("lineWidth");
+    var lightmode = localStorage.getItem("lightmode");
 }
 document.getElementById(mode).classList.add("activeMode");
 document.getElementById("color").value = color;
@@ -29,7 +31,15 @@ function canvasSize(){
 
 function drawCanvas(stack){
     // console.log(stack);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (lightmode==1){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.stroke();
+    }
     for (let i = 0; i < stack.length; i++){
         if (stack[i][0]=="line"){
             ctx.beginPath();
@@ -126,7 +136,23 @@ window.addEventListener('keydown', (event) => {
     if ((event.metaKey || event.ctrlKey)&&event.key=='z'){
         document.getElementById('undo').click();
     } else if ((event.metaKey || event.ctrlKey)&&event.key=='c'){
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        lightmode = 1-lightmode;
+        console.log(lightmode);
+        drawCanvas(shapes);
+        if (lightmode==1){
+            let tools = document.getElementsByClassName("tool");
+            Array.prototype.forEach.call(tools, function(tool) {
+                console.log(tool);
+                tool.childNode[1].stroke = "#FFFFFF";
+            });
+            
+        } else {
+            let tools = document.getElementsByClassName("tool");
+            Array.prototype.forEach.call(tools, function(tool) {
+                console.log(tool);
+                tool.childNode[1].stroke = "#000000";
+            });
+        }
     } else if (event.key == 'p'){
         document.getElementById('pointer').click();
     } else if (event.key == 'b'){
