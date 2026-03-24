@@ -3,100 +3,109 @@ const ctx = canvas.getContext('2d');
 const toolBar = document.querySelector(".toolbar");
 const lineWidthSlider = document.getElementById("lineWidthSlider");
 let drawingRn = false;
-var lineWidth = 1;
-var color = "#000000";
-var mode = "pointer";
+var brushArray = [];
 var tempCoords = [0, 0];
-var shapes = [];
-var brushArray = new Array();
+if(localStorage.getItem("stack")==null){
+    var shapes=[];
+    var mode = "pointer";
+    var color = "#000000";
+    var lineWidth = 1;
+} else {
+    var shapes = JSON.parse(localStorage.getItem("stack"));
+    var mode = localStorage.getItem("mode");
+    var color = localStorage.getItem("color");
+    var lineWidth = localStorage.getItem("lineWidth");
+}
 function canvasSize(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    drawCanvas(shapes);
 }
 
 function drawCanvas(stack){
     // console.log(stack);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let i = 0; i < stack.length; i++){
-        if (stack[i].get("type")=="line"){
+        if (stack[i][0]=="line"){
             ctx.beginPath();
-            ctx.strokeStyle = stack[i].get("color");
-            ctx.lineWidth = stack[i].get("linewidth");
-            ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
-            ctx.lineTo(stack[i].get("final")[0], stack[i].get("final")[1]);
+            ctx.strokeStyle = stack[i][3];
+            ctx.lineWidth = stack[i][4];
+            ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+            ctx.lineTo(stack[i][2][0], stack[i][2][1]);
             ctx.stroke();
-        } else if (stack[i].get("type")=="brush"){
+        } else if (stack[i][0]=="brush"){
             console.log("brushhh");
             ctx.beginPath();
-            ctx.strokeStyle = stack[i].get("color");
-            ctx.lineWidth = stack[i].get("linewidth");
-            ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
-            for (let j = 0;  j < stack[i].get("drawArray").length; j++){
-                console.log([stack[i].get("drawArray")[j][0], stack[i].get("drawArray")[j][1]]);
-                ctx.lineTo(stack[i].get("drawArray")[j][0], stack[i].get("drawArray")[j][1]);
+            ctx.strokeStyle = stack[i][3];
+            ctx.lineWidth = stack[i][4];
+            ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+            for (let j = 0;  j < stack[i][5].length; j++){
+                console.log([stack[i][5][j][0], stack[i][5][j][1]]);
+                ctx.lineTo(stack[i][5][j][0], stack[i][5][j][1]);
+                ctx.moveTo(stack[i][5][j][0], stack[i][5][j][1]);
             }
             ctx.stroke();
 
-        } else if (stack[i].get("type")=="rect"){
+        } else if (stack[i][0]=="rect"){
             // console.log("Rect in array");
             ctx.beginPath();
-            ctx.strokeStyle = stack[i].get("color");
-            ctx.lineWidth = stack[i].get("linewidth");
-            ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1])
-            ctx.lineTo(stack[i].get("initial")[0], stack[i].get("final")[1]);
-            ctx.lineTo(stack[i].get("final")[0], stack[i].get("final")[1]);
-            ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1])
-            ctx.lineTo(stack[i].get("final")[0], stack[i].get("initial")[1]);
-            ctx.lineTo(stack[i].get("final")[0], stack[i].get("final")[1]);
+            ctx.strokeStyle = stack[i][3];
+            ctx.lineWidth = stack[i][4];
+            ctx.moveTo(stack[i][1][0], stack[i][1][1])
+            ctx.lineTo(stack[i][1][0], stack[i][2][1]);
+            ctx.lineTo(stack[i][2][0], stack[i][2][1]);
+            ctx.moveTo(stack[i][1][0], stack[i][1][1])
+            ctx.lineTo(stack[i][2][0], stack[i][1][1]);
+            ctx.lineTo(stack[i][2][0], stack[i][2][1]);
             ctx.stroke();
-        } else if (stack[i].get("type")=="circle"){
+        } else if (stack[i][0]=="circle"){
             ctx.beginPath();
-            ctx.strokeStyle = stack[i].get("color");
-            ctx.lineWidth = stack[i].get("linewidth");
-            let diameter = Math.sqrt((stack[i].get("final")[0]- stack[i].get("initial")[0])**2 + (stack[i].get("final")[1]- stack[i].get("initial")[1])**2);
-            ctx.arc((stack[i].get("initial")[0]+stack[i].get("final")[0])/2, (stack[i].get("initial")[1]+stack[i].get("final")[1])/2, diameter/2, 0, 2*Math.PI);
+            ctx.strokeStyle = stack[i][3];
+            ctx.lineWidth = stack[i][4];
+            let diameter = Math.sqrt((stack[i][2][0]- stack[i][1][0])**2 + (stack[i][2][1]- stack[i][1][1])**2);
+            ctx.arc((stack[i][1][0]+stack[i][2][0])/2, (stack[i][1][1]+stack[i][2][1])/2, diameter/2, 0, 2*Math.PI);
             ctx.stroke();
-        } else if (stack[i].get("type")=="tri"){
+        } else if (stack[i][0]=="tri"){
             ctx.beginPath();
-            ctx.strokeStyle = stack[i].get("color");
-            ctx.lineWidth = stack[i].get("linewidth");
-            ctx.moveTo(stack[i].get("initial")[0], stack[i].get("final")[1]);
-            ctx.lineTo(stack[i].get("final")[0], stack[i].get("final")[1]);
-            ctx.lineTo((stack[i].get("final")[0]+stack[i].get("initial")[0])/2, stack[i].get("initial")[1]);
-            ctx.lineTo(stack[i].get("initial")[0], stack[i].get("final")[1]);
+            ctx.strokeStyle = stack[i][3];
+            ctx.lineWidth = stack[i][4];
+            ctx.moveTo(stack[i][1][0], stack[i][2][1]);
+            ctx.lineTo(stack[i][2][0], stack[i][2][1]);
+            ctx.lineTo((stack[i][2][0]+stack[i][1][0])/2, stack[i][1][1]);
+            ctx.lineTo(stack[i][1][0], stack[i][2][1]);
             ctx.stroke();
-        } else if (stack[i].get("type")=="square"){
+        } else if (stack[i][0]=="square"){
             ctx.beginPath();
-            ctx.strokeStyle = stack[i].get("color");
-            ctx.lineWidth = stack[i].get("linewidth");
-            ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
-            if (Math.abs(stack[i].get("final")[0] - stack[i].get("initial")[0]) > Math.abs(stack[i].get("final")[1] - stack[i].get("initial")[1])){
-                if ((stack[i].get("final")[0] - stack[i].get("initial")[0])*((stack[i].get("final")[1] - stack[i].get("initial")[1]))>0){
-                    ctx.lineTo(stack[i].get("initial")[0], stack[i].get("final")[1]);
-                    ctx.lineTo(stack[i].get("final")[1] - stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("final")[1]);
-                    ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
-                    ctx.lineTo(stack[i].get("final")[1] - stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("initial")[1]);
-                    ctx.lineTo(stack[i].get("final")[1] - stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("final")[1]);
+            ctx.strokeStyle = stack[i][3];
+            ctx.lineWidth = stack[i][4];
+            ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+            if (Math.abs(stack[i][2][0] - stack[i][1][0]) > Math.abs(stack[i][2][1] - stack[i][1][1])){
+                if ((stack[i][2][0] - stack[i][1][0])*((stack[i][2][1] - stack[i][1][1]))>0){
+                    ctx.lineTo(stack[i][1][0], stack[i][2][1]);
+                    ctx.lineTo(stack[i][2][1] - stack[i][1][1] + stack[i][1][0], stack[i][2][1]);
+                    ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+                    ctx.lineTo(stack[i][2][1] - stack[i][1][1] + stack[i][1][0], stack[i][1][1]);
+                    ctx.lineTo(stack[i][2][1] - stack[i][1][1] + stack[i][1][0], stack[i][2][1]);
                 } else {
-                    ctx.lineTo(stack[i].get("initial")[0], stack[i].get("final")[1]);
-                    ctx.lineTo(-stack[i].get("final")[1] + stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("final")[1]);
-                    ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
-                    ctx.lineTo(-stack[i].get("final")[1] + stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("initial")[1]);
-                    ctx.lineTo(-stack[i].get("final")[1] + stack[i].get("initial")[1] + stack[i].get("initial")[0], stack[i].get("final")[1]);
+                    ctx.lineTo(stack[i][1][0], stack[i][2][1]);
+                    ctx.lineTo(-stack[i][2][1] + stack[i][1][1] + stack[i][1][0], stack[i][2][1]);
+                    ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+                    ctx.lineTo(-stack[i][2][1] + stack[i][1][1] + stack[i][1][0], stack[i][1][1]);
+                    ctx.lineTo(-stack[i][2][1] + stack[i][1][1] + stack[i][1][0], stack[i][2][1]);
                 }
             } else {
-                if ((stack[i].get("final")[0] - stack[i].get("initial")[0])*((stack[i].get("final")[1] - stack[i].get("initial")[1]))>0){
-                    ctx.lineTo(stack[i].get("final")[0], stack[i].get("initial")[1]);
-                    ctx.lineTo(stack[i].get("final")[0], stack[i].get("final")[0] - stack[i].get("initial")[0] + stack[i].get("initial")[1]);
-                    ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
-                    ctx.lineTo(stack[i].get("initial")[0], stack[i].get("initial")[1] + stack[i].get("final")[0] - stack[i].get("initial")[0]);
-                    ctx.lineTo(stack[i].get("final")[0], stack[i].get("final")[0] - stack[i].get("initial")[0] + stack[i].get("initial")[1]);
+                if ((stack[i][2][0] - stack[i][1][0])*((stack[i][2][1] - stack[i][1][1]))>0){
+                    ctx.lineTo(stack[i][2][0], stack[i][1][1]);
+                    ctx.lineTo(stack[i][2][0], stack[i][2][0] - stack[i][1][0] + stack[i][1][1]);
+                    ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+                    ctx.lineTo(stack[i][1][0], stack[i][1][1] + stack[i][2][0] - stack[i][1][0]);
+                    ctx.lineTo(stack[i][2][0], stack[i][2][0] - stack[i][1][0] + stack[i][1][1]);
                 } else {
-                    ctx.lineTo(stack[i].get("final")[0], stack[i].get("initial")[1]);
-                    ctx.lineTo(stack[i].get("final")[0], -stack[i].get("final")[0] + stack[i].get("initial")[0] + stack[i].get("initial")[1]);
-                    ctx.moveTo(stack[i].get("initial")[0], stack[i].get("initial")[1]);
-                    ctx.lineTo(stack[i].get("initial")[0], stack[i].get("initial")[1] - stack[i].get("final")[0] + stack[i].get("initial")[0]);
-                    ctx.lineTo(stack[i].get("final")[0], -stack[i].get("final")[0] + stack[i].get("initial")[0] + stack[i].get("initial")[1]);
+                    ctx.lineTo(stack[i][2][0], stack[i][1][1]);
+                    ctx.lineTo(stack[i][2][0], -stack[i][2][0] + stack[i][1][0] + stack[i][1][1]);
+                    ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+                    ctx.lineTo(stack[i][1][0], stack[i][1][1] - stack[i][2][0] + stack[i][1][0]);
+                    ctx.lineTo(stack[i][2][0], -stack[i][2][0] + stack[i][1][0] + stack[i][1][1]);
                 }  
             }
             ctx.stroke();
@@ -147,6 +156,7 @@ toolBar.addEventListener('click', (event) => {
             if (shapes.length > 0){
                 shapes.pop();
                 drawCanvas(shapes);
+                localStorage.setItem("stack", JSON.stringify(shapes));
             }
             console.log(shapes);
         } else {
@@ -174,14 +184,19 @@ canvas.addEventListener('mousedown', (event) => {
     if (mode=="pointer"){
 
     } else if (mode == "brush"){
-        ctx.strokeStyle = color;
+        // ctx.strokeStyle = color;
         ctx.beginPath();
-        ctx.lineWidth = lineWidth;
-        ctx.fillRect(event.clientX, event.clientY, 2, 2);
+        // ctx.lineWidth = lineWidth;
+        // ctx.fillRect(event.clientX, event.clientY, 2, 2);
+        startCoords= [];
+        startCoords[0] = event.clientX;
+        startCoords[1] = event.clientY;
         tempCoords[0] = event.clientX;
         tempCoords[1] = event.clientY;
-        ctx.moveTo(tempCoords[0], tempCoords[1]);
-        console.log("Drawing being made");
+        ctx.moveTo(startCoords[0], startCoords[1]);
+        ctx.stroke();
+        // console.log("Drawing being made");
+        shapes.push([]);
     } else if (mode == "line"){
         ctx.strokeStyle = color;
         ctx.beginPath();
@@ -212,6 +227,7 @@ canvas.addEventListener('mousedown', (event) => {
         ctx.strokeStyle = color;
         ctx.beginPath();
         ctx.lineWidth = lineWidth;
+        ctx.moveTo(event.clientX, event.clientY);
         tempCoords[0] = event.clientX;
         tempCoords[1] = event.clientY;
         console.log(tempCoords);
@@ -237,89 +253,111 @@ canvas.addEventListener('mouseup', (event) => {
     // console.log(stateStack[3]);
     
     if (mode == 'brush'){
-        const brushMap = new Map();
-        brushMap.set("type","brush");
-        brushMap.set("initial",[tempCoords[0], tempCoords[1]]);
-        brushMap.set("final",[event.clientX, event.clientY]);
-        brushMap.set("color",color);
-        brushMap.set("linewidth",lineWidth);
-        brushMap.set("drawArray",brushArray);
-        shapes.push(brushMap);
+        // const brushShapeArr = [];
+        // brushShapeArr.push("brush");
+        // brushShapeArr.push([tempCoords[0], tempCoords[1]]);
+        // brushShapeArr.push([event.clientX, event.clientY]);
+        // brushShapeArr.push(color);
+        // brushShapeArr.push(lineWidth);
+        // brushShapeArr.push(brushArray);
+        // shapes.push(brushShapeArr);
         brushArray = [];
     } else if (mode == "line"){
-        const lineMap = new Map();
-        lineMap.set("type","line");
-        lineMap.set("initial",[tempCoords[0], tempCoords[1]]);
-        lineMap.set("final",[event.clientX, event.clientY]);
-        lineMap.set("color",color);
-        lineMap.set("linewidth",lineWidth);
-        shapes.push(lineMap);
+        const lineArr = [];
+        lineArr.push("line");
+        lineArr.push([tempCoords[0], tempCoords[1]]);
+        lineArr.push([event.clientX, event.clientY]);
+        lineArr.push(color);
+        lineArr.push(lineWidth);
+        shapes.push(lineArr);
     } else if (mode == "rect"){
         console.log("Pushing rect");
-        const rectMap = new Map();
-        rectMap.set("type","rect");
-        rectMap.set("initial",[tempCoords[0], tempCoords[1]]);
-        rectMap.set("final",[event.clientX, event.clientY]);
-        rectMap.set("color",color);
-        rectMap.set("linewidth",lineWidth);
-        shapes.push(rectMap);
+        const rectArr = [];
+        rectArr.push("rect");
+        rectArr.push([tempCoords[0], tempCoords[1]]);
+        rectArr.push([event.clientX, event.clientY]);
+        rectArr.push(color);
+        rectArr.push(lineWidth);
+        shapes.push(rectArr);
     } else if (mode == "square"){
         console.log("Pushing square");
-        const sqMap = new Map();
-        sqMap.set("type","square");
-        sqMap.set("initial",[tempCoords[0], tempCoords[1]]);
-        sqMap.set("final",[event.clientX, event.clientY]);
-        sqMap.set("color",color);
-        sqMap.set("linewidth",lineWidth);
-        shapes.push(sqMap);
+        const sqArr = [];
+        sqArr.push("square");
+        sqArr.push([tempCoords[0], tempCoords[1]]);
+        sqArr.push([event.clientX, event.clientY]);
+        sqArr.push(color);
+        sqArr.push(lineWidth);
+        shapes.push(sqArr);
     } else if (mode == "circle"){
         console.log("Pushing circle");
-        const cirMap = new Map();
-        cirMap.set("type","circle");
-        cirMap.set("initial",[tempCoords[0], tempCoords[1]]);
-        cirMap.set("final",[event.clientX, event.clientY]);
-        cirMap.set("color",color);
-        cirMap.set("linewidth",lineWidth);
-        shapes.push(cirMap);
+        const cirArr = [];
+        cirArr.push("circle");
+        cirArr.push([tempCoords[0], tempCoords[1]]);
+        cirArr.push([event.clientX, event.clientY]);
+        cirArr.push(color);
+        cirArr.push(lineWidth);
+        shapes.push(cirArr);
     } else if (mode == "tri"){
         console.log("Pushing tri");
-        const triMap = new Map();
-        triMap.set("type","tri");
-        triMap.set("initial",[tempCoords[0], tempCoords[1]]);
-        triMap.set("final",[event.clientX, event.clientY]);
-        triMap.set("color",color);
-        triMap.set("linewidth",lineWidth);
-        shapes.push(triMap);
+        const triArr = [];
+        triArr.push("tri");
+        triArr.push([tempCoords[0], tempCoords[1]]);
+        triArr.push([event.clientX, event.clientY]);
+        triArr.push(color);
+        triArr.push(lineWidth);
+        shapes.push(triArr);
     }
-    console.log(shapes);
+    console.log(JSON.stringify(shapes));
     drawCanvas(shapes);
+    localStorage.setItem("stack", JSON.stringify(shapes));
+    localStorage.setItem("mode", mode);
+    localStorage.setItem("color", color);
+    localStorage.setItem("lineWidth", lineWidth);
+    
     
 });
 window.addEventListener('mousemove', (event) => {
     if (drawingRn){
         console.log("pointer moving");
         drawCanvas(shapes);
-    //     if (mode=="pointer"){
-        
-    //     } else if (mode == "brush"){
-    //         ctx.fillStyle = color;
-    //         ctx.lineTo(event.clientX, event.clientY, 2, 2);
-    //         ctx.stroke();
-    //         tempCoords = [event.clientX, event.clientY];
-    //         console.log("Drawing being made");
-    //     } 
-    // }
+        //     if (mode=="pointer"){
+            
+        //     } else if (mode == "brush"){
+            //         ctx.fillStyle = color;
+            //         ctx.lineTo(event.clientX, event.clientY, 2, 2);
+            //         ctx.stroke();
+            //         tempCoords = [event.clientX, event.clientY];
+            //         console.log("Drawing being made");
+            //     } 
+            // }
             
         if (mode == 'brush'){
-            
+            ctx.beginPath();
+            ctx.moveTo(tempCoords[0], tempCoords[1]);
+            ctx.lineTo(event.clientX, event.clientY);
+            tempCoords[0] = event.clientX;
+            tempCoords[1] = event.clientY;
             brushArray.push([event.clientX, event.clientY]);
-
-
+            ctx.stroke();
+            
+            shapes.pop();
+            const brushShapeArr = [];
+            brushShapeArr.push("brush");
+            brushShapeArr.push([startCoords[0], startCoords[1]]);
+            brushShapeArr.push([event.clientX, event.clientY]);
+            brushShapeArr.push(color);
+            brushShapeArr.push(lineWidth);
+            brushShapeArr.push(brushArray);
+            shapes.push(brushShapeArr);
+            
         } else if (mode == "line"){
+            ctx.beginPath();
+            ctx.moveTo(tempCoords[0], tempCoords[1]);
             ctx.lineTo(event.clientX, event.clientY);
             ctx.stroke();
         } else if (mode == "rect"){
-            drawCanvas(shapes);
+            ctx.beginPath();
+            ctx.moveTo(tempCoords[0], tempCoords[1]);
             ctx.lineTo(tempCoords[0], event.clientY);
             ctx.lineTo(event.clientX, event.clientY);
             ctx.moveTo(tempCoords[0], tempCoords[1]);
@@ -327,6 +365,8 @@ window.addEventListener('mousemove', (event) => {
             ctx.lineTo(event.clientX, event.clientY);
             ctx.stroke();
         } else if (mode == "square"){
+            ctx.beginPath();
+            ctx.moveTo(tempCoords[0], tempCoords[1]);
             if (Math.abs(event.clientX - tempCoords[0]) > Math.abs(event.clientY - tempCoords[1])){
                 if ((event.clientX - tempCoords[0])*((event.clientY - tempCoords[1]))>0){
                     ctx.lineTo(tempCoords[0], event.clientY);
@@ -359,16 +399,18 @@ window.addEventListener('mousemove', (event) => {
             ctx.stroke();
             
         } else if (mode == "circle"){
+            ctx.moveTo(tempCoords[0], tempCoords[1]);
+            ctx.beginPath();
             let diameter = Math.sqrt((event.clientX - tempCoords[0])**2 + (event.clientY - tempCoords[1])**2);
             ctx.arc((tempCoords[0]+event.clientX)/2, (tempCoords[1]+event.clientY)/2, diameter/2, 0, 2*Math.PI);
             ctx.stroke();
         } else if (mode == "tri"){
+            ctx.beginPath()
             ctx.moveTo(tempCoords[0], event.clientY);
             ctx.lineTo(event.clientX, event.clientY);
             ctx.lineTo((event.clientX+tempCoords[0])/2, tempCoords[1]);
             ctx.lineTo(tempCoords[0], event.clientY);
             ctx.stroke();
         }
-        drawCanvas(shapes);
     }
 });
