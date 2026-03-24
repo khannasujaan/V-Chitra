@@ -16,6 +16,9 @@ if(localStorage.getItem("stack")==null){
     var color = localStorage.getItem("color");
     var lineWidth = localStorage.getItem("lineWidth");
 }
+document.getElementById("color").value = color;
+document.getElementById("lineWidthSlider").value = lineWidth;
+document.getElementById("displayLineWidth").innerHTML = lineWidth;
 function canvasSize(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -112,6 +115,7 @@ function drawCanvas(stack){
         }
     }
 }
+click_event = new CustomEvent('click');
 
 canvasSize();
 // var stateStack = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
@@ -150,8 +154,17 @@ window.addEventListener('keydown', (event) => {
     }
 });
 toolBar.addEventListener('click', (event) => {
-    if (event.target.className == "tool"){
-        if (event.target.id == "undo"){
+    console.log(event.target.parentElement);
+    if (event.target.parentElement.tagName == "svg"){
+        console.log(event.target.parentElement.parentElement);
+        var element = event.target.parentElement.parentElement;
+    } else if(event.target.className == "tool"){
+        var element = event.target;
+    } else {
+        var element = event.target.parentElement;
+    }
+    if (element.className == "tool"){
+        if (element.id == "undo"){
             console.log("undo");
             if (shapes.length > 0){
                 shapes.pop();
@@ -159,13 +172,16 @@ toolBar.addEventListener('click', (event) => {
                 localStorage.setItem("stack", JSON.stringify(shapes));
             }
             console.log(shapes);
-        } else {
-            let toolbarelements = document.getElementsByClassName("tool");
-            for (let i = toolbarelements.length - 1; i >= 0; i--){
-                toolbarelements[i].style.background = "#FFFFFF";
+        } else if (element.id == "clear"){
+            console.log("clear");
+            if (shapes.length > 0){
+                shapes = [];
+                drawCanvas(shapes);
+                localStorage.setItem("stack", JSON.stringify(shapes));
             }
-            mode = event.target.id;
-            event.target.style.background = "#a1a1a1";
+            console.log(shapes);
+        } else {
+            mode = element.id;
             console.log(mode);
         }
     }
@@ -179,6 +195,7 @@ document.getElementById("color").addEventListener('input', (event) => {
 });
 
 canvas.addEventListener('mousedown', (event) => {
+    console.log(event.clientX, event.clientY);
     drawCanvas(shapes);
     drawingRn = true;
     if (mode=="pointer"){
@@ -333,6 +350,8 @@ window.addEventListener('mousemove', (event) => {
             
         if (mode == 'brush'){
             ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
             ctx.moveTo(tempCoords[0], tempCoords[1]);
             ctx.lineTo(event.clientX, event.clientY);
             tempCoords[0] = event.clientX;
@@ -352,11 +371,15 @@ window.addEventListener('mousemove', (event) => {
             
         } else if (mode == "line"){
             ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
             ctx.moveTo(tempCoords[0], tempCoords[1]);
             ctx.lineTo(event.clientX, event.clientY);
             ctx.stroke();
         } else if (mode == "rect"){
             ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
             ctx.moveTo(tempCoords[0], tempCoords[1]);
             ctx.lineTo(tempCoords[0], event.clientY);
             ctx.lineTo(event.clientX, event.clientY);
@@ -366,6 +389,8 @@ window.addEventListener('mousemove', (event) => {
             ctx.stroke();
         } else if (mode == "square"){
             ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
             ctx.moveTo(tempCoords[0], tempCoords[1]);
             if (Math.abs(event.clientX - tempCoords[0]) > Math.abs(event.clientY - tempCoords[1])){
                 if ((event.clientX - tempCoords[0])*((event.clientY - tempCoords[1]))>0){
@@ -401,11 +426,15 @@ window.addEventListener('mousemove', (event) => {
         } else if (mode == "circle"){
             ctx.moveTo(tempCoords[0], tempCoords[1]);
             ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
             let diameter = Math.sqrt((event.clientX - tempCoords[0])**2 + (event.clientY - tempCoords[1])**2);
             ctx.arc((tempCoords[0]+event.clientX)/2, (tempCoords[1]+event.clientY)/2, diameter/2, 0, 2*Math.PI);
             ctx.stroke();
         } else if (mode == "tri"){
-            ctx.beginPath()
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
             ctx.moveTo(tempCoords[0], event.clientY);
             ctx.lineTo(event.clientX, event.clientY);
             ctx.lineTo((event.clientX+tempCoords[0])/2, tempCoords[1]);

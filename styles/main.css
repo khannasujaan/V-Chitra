@@ -30,7 +30,7 @@
 }
 
 .tool {
-    justify-content: right;
+    justify-content: center;
     background-color: transparent;
     cursor: pointer;
 }
@@ -47,7 +47,7 @@
 .lineColorWidth {
     display: flex;
     flex-direction: row;
-    justify-content: left;
+    justify-content: center;
     align-items: center;
 }
 
