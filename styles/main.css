@@ -7,7 +7,7 @@
 
 #headGrid {
     display: grid;
-    grid-template-columns: 2fr 4fr 4fr;
+    grid-template-columns: 0.5fr 7fr;
     position: absolute;
     width: 100%;
     z-index:10;
@@ -18,21 +18,28 @@
     /* grid-template-columns: repeat(8, 1fr); */
     align-items: center;
     flex-wrap: wrap;
-    justify-content: right;
-    gap: 5px;
-    margin-right: 1rem;
+    justify-content: center;
+    gap:0.5rem;
+}
+
+.activeMode {
+    background-color: #d9d9d9;
 }
 
 #headerlogo {
-    margin: 10px;
-    width: 70px;
-    height: 70px;
+    margin: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 .tool {
     justify-content: center;
-    background-color: transparent;
     cursor: pointer;
+    opacity: 0.5;
+}
+
+.tool:hover{
+    opacity: 1;
 }
 
 .canvasArea {
@@ -45,7 +52,12 @@
 } */
 
 .lineColorWidth {
+    z-index: 20;
     display: flex;
+    position: absolute;
+    width: 100%;
+    bottom: 1rem;
+    text-align: center;
     flex-direction: row;
     justify-content: center;
     align-items: center;

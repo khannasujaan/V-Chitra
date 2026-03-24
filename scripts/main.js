@@ -16,9 +16,11 @@ if(localStorage.getItem("stack")==null){
     var color = localStorage.getItem("color");
     var lineWidth = localStorage.getItem("lineWidth");
 }
+document.getElementById(mode).classList.add("activeMode");
 document.getElementById("color").value = color;
 document.getElementById("lineWidthSlider").value = lineWidth;
 document.getElementById("displayLineWidth").innerHTML = lineWidth;
+lineWidthSlider.style.accentColor=color;
 function canvasSize(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -181,7 +183,9 @@ toolBar.addEventListener('click', (event) => {
             }
             console.log(shapes);
         } else {
+            document.getElementById(mode).classList.remove("activeMode");
             mode = element.id;
+            document.getElementById(mode).classList.add("activeMode");
             console.log(mode);
         }
     }
@@ -189,9 +193,12 @@ toolBar.addEventListener('click', (event) => {
 lineWidthSlider.addEventListener('input', (event) => {
     lineWidth = event.target.value;
     document.getElementById("displayLineWidth").innerHTML = lineWidth;
+    localStorage.setItem("lineWidth", lineWidth);
 });
 document.getElementById("color").addEventListener('input', (event) => {
     color = event.target.value;
+    localStorage.setItem("color", color);
+    lineWidthSlider.style.accentColor=color;
 });
 
 canvas.addEventListener('mousedown', (event) => {
