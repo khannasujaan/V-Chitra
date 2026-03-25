@@ -131,6 +131,16 @@ function drawCanvas(stack){
                 }  
             }
             ctx.stroke();
+        } else if (stack[i][0]=="clear"){
+            if (lightmode==1){
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.fillStyle = "#202020";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.stroke();
+            }
         }
     }
 }
@@ -194,11 +204,11 @@ toolBar.addEventListener('click', (event) => {
         } else if (element.id == "clear"){
             console.log("clear");
             if (shapes.length > 0){
-                shapes = [];
+                shapes.push(["clear"]);
                 drawCanvas(shapes);
+                console.log(shapes);
                 localStorage.setItem("stack", JSON.stringify(shapes));
             }
-            console.log(shapes);
         } else if (element.id == "toggle"){
             console.log("toggle");
             lightmode = 1-lightmode;
