@@ -66,7 +66,6 @@ function drawCanvas(stack){
             for (let j = 0;  j < stack[i][5].length; j++){
                 console.log([stack[i][5][j][0], stack[i][5][j][1]]);
                 ctx.lineTo(stack[i][5][j][0], stack[i][5][j][1]);
-                ctx.moveTo(stack[i][5][j][0], stack[i][5][j][1]);
             }
             ctx.stroke();
 
