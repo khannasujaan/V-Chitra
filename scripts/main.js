@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 const toolBar = document.querySelector(".toolbar");
 const lineWidthSlider = document.getElementById("lineWidthSlider");
 let drawingRn = false;
+let canvasDown = false;
 var brushArray = [];
 var tempCoords = [0, 0];
 if(localStorage.getItem("stack")==null){
@@ -17,6 +18,13 @@ if(localStorage.getItem("stack")==null){
     var color = localStorage.getItem("color");
     var lineWidth = localStorage.getItem("lineWidth");
     var lightmode = localStorage.getItem("lightmode");
+}
+if (lightmode==1){
+    document.querySelector("#toggle path").setAttribute("d", "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z");
+    document.querySelector("#toggle path").setAttribute("stroke", "#000000");
+} else {
+    document.querySelector("#toggle path").setAttribute("d", "M12 3V4M12 20V21M4 12H3M6.31412 6.31412L5.5 5.5M17.6859 6.31412L18.5 5.5M6.31412 17.69L5.5 18.5001M17.6859 17.69L18.5 18.5001M21 12H20M16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12Z");
+    document.querySelector("#toggle path").setAttribute("stroke", "#FFFFFF");
 }
 document.getElementById(mode).classList.add("activeMode");
 document.getElementById("color").value = color;
@@ -136,23 +144,7 @@ window.addEventListener('keydown', (event) => {
     if ((event.metaKey || event.ctrlKey)&&event.key=='z'){
         document.getElementById('undo').click();
     } else if ((event.metaKey || event.ctrlKey)&&event.key=='c'){
-        lightmode = 1-lightmode;
-        console.log(lightmode);
-        drawCanvas(shapes);
-        if (lightmode==1){
-            let tools = document.getElementsByClassName("tool");
-            Array.prototype.forEach.call(tools, function(tool) {
-                console.log(tool);
-                tool.childNode[1].stroke = "#FFFFFF";
-            });
-            
-        } else {
-            let tools = document.getElementsByClassName("tool");
-            Array.prototype.forEach.call(tools, function(tool) {
-                console.log(tool);
-                tool.childNode[1].stroke = "#000000";
-            });
-        }
+        
     } else if (event.key == 'p'){
         document.getElementById('pointer').click();
     } else if (event.key == 'b'){
@@ -208,11 +200,25 @@ toolBar.addEventListener('click', (event) => {
                 localStorage.setItem("stack", JSON.stringify(shapes));
             }
             console.log(shapes);
+        } else if (element.id == "toggle"){
+            console.log("toggle");
+            lightmode = 1-lightmode;
+            localStorage.setItem("lightmode", lightmode);
+            console.log(lightmode);
+            drawCanvas(shapes);
+            if (lightmode==1){
+                document.querySelector("#toggle path").setAttribute("d", "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z");
+                document.querySelector("#toggle path").setAttribute("stroke", "#000000");
+            } else {
+                document.querySelector("#toggle path").setAttribute("d", "M12 3V4M12 20V21M4 12H3M6.31412 6.31412L5.5 5.5M17.6859 6.31412L18.5 5.5M6.31412 17.69L5.5 18.5001M17.6859 17.69L18.5 18.5001M21 12H20M16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12Z");
+                document.querySelector("#toggle path").setAttribute("stroke", "#FFFFFF");
+            }
         } else {
             document.getElementById(mode).classList.remove("activeMode");
             mode = element.id;
             document.getElementById(mode).classList.add("activeMode");
             console.log(mode);
+            localStorage.setItem("mode", mode);
         }
     }
 });
@@ -231,6 +237,7 @@ canvas.addEventListener('mousedown', (event) => {
     console.log(event.clientX, event.clientY);
     drawCanvas(shapes);
     drawingRn = true;
+    canvasDown = true;
     if (mode=="pointer"){
 
     } else if (mode == "brush"){
@@ -293,7 +300,12 @@ canvas.addEventListener('mousedown', (event) => {
     }
     drawCanvas(shapes);
 });
-canvas.addEventListener('mouseup', (event) => {
+window.addEventListener('mouseup', (event) => {
+    if (canvasDown){
+        canvasDown = false;
+    } else {
+        return;
+    }
     drawingRn = false;
     drawCanvas(shapes);
     console.log("Drawing stopped");
