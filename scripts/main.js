@@ -5,6 +5,7 @@ const lineWidthSlider = document.getElementById("lineWidthSlider");
 let drawingRn = false;
 let canvasDown = false;
 var brushArray = [];
+var redoStack = [];
 var tempCoords = [0, 0];
 if(localStorage.getItem("stack")==null){
     var shapes=[];
@@ -150,7 +151,9 @@ canvasSize();
 // var stateStack = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
 window.addEventListener('keydown', (event) => {
     console.log(event.key);
-    if ((event.metaKey || event.ctrlKey)&&event.key=='z'){
+    if ((event.metaKey || event.ctrlKey)&&(event.shiftKey)&&event.key=='z'){
+    document.getElementById('redo').click();
+    } else if ((event.metaKey || event.ctrlKey)&&event.key=='z'){
         document.getElementById('undo').click();
     } else if ((event.metaKey || event.ctrlKey)&&event.key=='c'){
         
@@ -196,7 +199,17 @@ toolBar.addEventListener('click', (event) => {
         if (element.id == "undo"){
             console.log("undo");
             if (shapes.length > 0){
+                redoStack.push(shapes[shapes.length-1]);
                 shapes.pop();
+                drawCanvas(shapes);
+                localStorage.setItem("stack", JSON.stringify(shapes));
+            }
+            console.log(shapes);
+        } else if (element.id == "redo"){
+            console.log("redo");
+            if (redoStack.length > 0){
+                shapes.push(redoStack[redoStack.length-1]);
+                redoStack.pop();
                 drawCanvas(shapes);
                 localStorage.setItem("stack", JSON.stringify(shapes));
             }
@@ -247,6 +260,7 @@ canvas.addEventListener('mousedown', (event) => {
     drawCanvas(shapes);
     drawingRn = true;
     canvasDown = true;
+    redoStack=[];
     if (mode=="pointer"){
 
     } else if (mode == "brush"){
