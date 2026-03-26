@@ -9,6 +9,7 @@ var redoStack = [];
 var tempCoords = [0, 0];
 var selected = -1;
 var dragselected = 0;
+var sqCoords = [];
 if(localStorage.getItem("stack")==null){
     var shapes=[];
     var mode = "pointer";
@@ -108,39 +109,40 @@ function drawCanvas(stack){
             ctx.strokeStyle = stack[i][3];
             ctx.lineWidth = stack[i][4];
             ctx.moveTo(stack[i][1][0], stack[i][1][1]);
-            if (Math.abs(stack[i][2][0] - stack[i][1][0]) > Math.abs(stack[i][2][1] - stack[i][1][1])){
-                if ((stack[i][2][0] - stack[i][1][0])*((stack[i][2][1] - stack[i][1][1]))>0){
-                    ctx.lineTo(stack[i][1][0], stack[i][2][1]);
-                    ctx.lineTo(stack[i][2][1] - stack[i][1][1] + stack[i][1][0], stack[i][2][1]);
-                    // ctx.moveTo(stack[i][1][0], stack[i][1][1]);
-                    ctx.lineTo(stack[i][2][1] - stack[i][1][1] + stack[i][1][0], stack[i][1][1]);
-                    ctx.lineTo(stack[i][1][0], stack[i][1][1]);
-                    ctx.lineTo(stack[i][1][0], stack[i][2][1]);
-                } else {
-                    ctx.lineTo(stack[i][1][0], stack[i][2][1]);
-                    ctx.lineTo(-stack[i][2][1] + stack[i][1][1] + stack[i][1][0], stack[i][2][1]);
-                    // ctx.moveTo(stack[i][1][0], stack[i][1][1]);
-                    ctx.lineTo(-stack[i][2][1] + stack[i][1][1] + stack[i][1][0], stack[i][1][1]);
-                    ctx.lineTo(stack[i][1][0], stack[i][1][1]);
-                    ctx.lineTo(stack[i][1][0], stack[i][2][1]);
-                }
-            } else {
-                if ((stack[i][2][0] - stack[i][1][0])*((stack[i][2][1] - stack[i][1][1]))>0){
-                    ctx.lineTo(stack[i][2][0], stack[i][1][1]);
-                    ctx.lineTo(stack[i][2][0], stack[i][2][0] - stack[i][1][0] + stack[i][1][1]);
-                    // ctx.moveTo(stack[i][1][0], stack[i][1][1]);
-                    ctx.lineTo(stack[i][1][0], stack[i][1][1] + stack[i][2][0] - stack[i][1][0]);
-                    ctx.lineTo(stack[i][1][0], stack[i][1][1]);
-                    ctx.lineTo(stack[i][2][0], stack[i][1][1]);
-                } else {
-                    ctx.lineTo(stack[i][2][0], stack[i][1][1]);
-                    ctx.lineTo(stack[i][2][0], -stack[i][2][0] + stack[i][1][0] + stack[i][1][1]);
-                    // ctx.moveTo(stack[i][1][0], stack[i][1][1]);
-                    ctx.lineTo(stack[i][1][0], stack[i][1][1] - stack[i][2][0] + stack[i][1][0]);
-                    ctx.lineTo(stack[i][1][0], stack[i][1][1]);
-                    ctx.lineTo(stack[i][2][0], stack[i][1][1]);
-                }  
-            }
+            ctx.strokeRect(stack[i][1][0], stack[i][1][1], stack[i][2][0]-stack[i][1][0], stack[i][2][1] - stack[i][1][1]);
+            // if (Math.abs(stack[i][2][0] - stack[i][1][0]) > Math.abs(stack[i][2][1] - stack[i][1][1])){
+            //     if ((stack[i][2][0] - stack[i][1][0])*((stack[i][2][1] - stack[i][1][1]))>0){
+            //         ctx.lineTo(stack[i][1][0], stack[i][2][1]);
+            //         ctx.lineTo(stack[i][2][1] - stack[i][1][1] + stack[i][1][0], stack[i][2][1]);
+            //         // ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+            //         ctx.lineTo(stack[i][2][1] - stack[i][1][1] + stack[i][1][0], stack[i][1][1]);
+            //         ctx.lineTo(stack[i][1][0], stack[i][1][1]);
+            //         ctx.lineTo(stack[i][1][0], stack[i][2][1]);
+            //     } else {
+            //         ctx.lineTo(stack[i][1][0], stack[i][2][1]);
+            //         ctx.lineTo(-stack[i][2][1] + stack[i][1][1] + stack[i][1][0], stack[i][2][1]);
+            //         // ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+            //         ctx.lineTo(-stack[i][2][1] + stack[i][1][1] + stack[i][1][0], stack[i][1][1]);
+            //         ctx.lineTo(stack[i][1][0], stack[i][1][1]);
+            //         ctx.lineTo(stack[i][1][0], stack[i][2][1]);
+            //     }
+            // } else {
+            //     if ((stack[i][2][0] - stack[i][1][0])*((stack[i][2][1] - stack[i][1][1]))>0){
+            //         ctx.lineTo(stack[i][2][0], stack[i][1][1]);
+            //         ctx.lineTo(stack[i][2][0], stack[i][2][0] - stack[i][1][0] + stack[i][1][1]);
+            //         // ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+            //         ctx.lineTo(stack[i][1][0], stack[i][1][1] + stack[i][2][0] - stack[i][1][0]);
+            //         ctx.lineTo(stack[i][1][0], stack[i][1][1]);
+            //         ctx.lineTo(stack[i][2][0], stack[i][1][1]);
+            //     } else {
+            //         ctx.lineTo(stack[i][2][0], stack[i][1][1]);
+            //         ctx.lineTo(stack[i][2][0], -stack[i][2][0] + stack[i][1][0] + stack[i][1][1]);
+            //         // ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+            //         ctx.lineTo(stack[i][1][0], stack[i][1][1] - stack[i][2][0] + stack[i][1][0]);
+            //         ctx.lineTo(stack[i][1][0], stack[i][1][1]);
+            //         ctx.lineTo(stack[i][2][0], stack[i][1][1]);
+            //     }  
+            // }
             ctx.stroke();
         } else if (stack[i][0]=="clear"){
             if (lightmode==1){
@@ -153,6 +155,7 @@ function drawCanvas(stack){
                 ctx.stroke();
             }
         } else if (stack[i][0]=="text"){
+            if (stack[i][5]==""){continue;}
             ctx.beginPath();
             ctx.strokeStyle = stack[i][3];
             // ctx.lineWidth = 1;
@@ -181,7 +184,11 @@ function drawCanvas(stack){
         ctx.beginPath()
         ctx.lineWidth=1;
         ctx.setLineDash([6]);
-        ctx.strokeStyle = "#000000";
+        if (lightmode==1){
+            ctx.strokeStyle = "#000000";
+        } else {
+            ctx.strokeStyle = "#FFFFFF";
+        }
         if (stack[selected][0]=="rect" || stack[selected][0]=="tri" || stack[selected][0]=="line" || stack[selected][0]=="img"){
             ctx.strokeRect(stack[selected][1][0], stack[selected][1][1], stack[selected][2][0]-stack[selected][1][0], stack[selected][2][1]-stack[selected][1][1]);
         } else if (stack[selected][0]=="circle"){
@@ -203,7 +210,6 @@ function drawCanvas(stack){
             ctx.font = `${4*shapes[selected][4]}px Arial`;
             let w = ctx.measureText(stack[selected][5])
             ctx.lineWidth=1;
-            ctx.strokeStyle = "#000000";
             ctx.strokeRect(stack[selected][1][0], stack[selected][1][1], w.width, -4*shapes[selected][4]);
         }
     }
@@ -577,7 +583,7 @@ window.addEventListener('mouseup', (event) => {
         const sqArr = [];
         sqArr.push("square");
         sqArr.push([tempCoords[0], tempCoords[1]]);
-        sqArr.push([event.clientX, event.clientY]);
+        sqArr.push([sqCoords[0], sqCoords[1]]);
         sqArr.push(color);
         sqArr.push(lineWidth);
         shapes.push(sqArr);
@@ -699,12 +705,16 @@ window.addEventListener('mousemove', (event) => {
                     ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], tempCoords[1]);
                     ctx.lineTo(tempCoords[0], tempCoords[1]);
                     ctx.lineTo(tempCoords[0], event.clientY);
+                    sqCoords[0] = (event.clientY - tempCoords[1] + tempCoords[0]);
+                    sqCoords[1] = event.clientY;
                 } else {
                     ctx.lineTo(tempCoords[0], event.clientY);
                     ctx.lineTo(-event.clientY + tempCoords[1] + tempCoords[0], event.clientY);
                     ctx.lineTo(-event.clientY + tempCoords[1] + tempCoords[0], tempCoords[1]);
                     ctx.lineTo(tempCoords[0], tempCoords[1]);
                     ctx.lineTo(tempCoords[0], event.clientY);
+                    sqCoords[0] = -event.clientY + tempCoords[1] + tempCoords[0];
+                    sqCoords[1] = event.clientY;
                 }
             } else {
                 if ((event.clientX - tempCoords[0])*((event.clientY - tempCoords[1]))>0){
@@ -713,12 +723,16 @@ window.addEventListener('mousemove', (event) => {
                     ctx.lineTo(tempCoords[0], tempCoords[1] + event.clientX - tempCoords[0]);
                     ctx.lineTo(tempCoords[0], tempCoords[1]);
                     ctx.lineTo(event.clientX, tempCoords[1]);
+                    sqCoords[0] = event.clientX;
+                    sqCoords[1] = event.clientX - tempCoords[0] + tempCoords[1];
                 } else {
                     ctx.lineTo(event.clientX, tempCoords[1]);
                     ctx.lineTo(event.clientX, -event.clientX + tempCoords[0] + tempCoords[1]);
                     ctx.lineTo(tempCoords[0], tempCoords[1] - event.clientX + tempCoords[0]);
                     ctx.lineTo(tempCoords[0], tempCoords[1]);
                     ctx.lineTo(event.clientX, tempCoords[1]);
+                    sqCoords[0] = event.clientX;
+                    sqCoords[1] = -event.clientX + tempCoords[0] + tempCoords[1];
                 }  
             }
             ctx.stroke();
