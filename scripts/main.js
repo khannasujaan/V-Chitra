@@ -177,6 +177,37 @@ function drawCanvas(stack){
             ctx.stroke();
         }
     }
+    if (selected != -1){
+        ctx.beginPath()
+        ctx.lineWidth=1;
+        ctx.setLineDash([6]);
+        ctx.strokeStyle = "#000000";
+        if (stack[selected][0]=="rect" || stack[selected][0]=="tri" || stack[selected][0]=="line" || stack[selected][0]=="img"){
+            ctx.strokeRect(stack[selected][1][0], stack[selected][1][1], stack[selected][2][0]-stack[selected][1][0], stack[selected][2][1]-stack[selected][1][1]);
+        } else if (stack[selected][0]=="circle"){
+            let r0 = Math.sqrt((stack[selected][2][0]-stack[selected][1][0])**2+(stack[selected][2][1]-stack[selected][1][1])**2)/2;
+            ctx.strokeRect((stack[selected][1][0]+stack[selected][2][0])/2-r0, (stack[selected][1][1]+stack[selected][2][1])/2-r0, 2*r0, 2*r0);
+        } else if (stack[selected][0]=="square"){
+            ctx.strokeRect(Math.min(stack[selected][1][0], stack[selected][2][0]), Math.min(stack[selected][1][1], stack[selected][2][1]), Math.min(Math.abs(stack[selected][1][0]-stack[selected][2][0])), Math.min(Math.abs(stack[selected][1][1]-stack[selected][2][1])));
+        } else if (stack[selected][0]=="brush"){
+            let minX=stack[selected][1][0], minY=stack[selected][1][1], maxX=stack[selected][1][0], maxY=stack[selected][1][1];
+            for (let i = 0; i < stack[selected][5].length-1; i++){
+                minX = (minX > stack[selected][5][i][0]) ? stack[selected][5][i][0] : minX;
+                maxX = (maxX < stack[selected][5][i][0]) ? stack[selected][5][i][0] : maxX;
+                minY = (minY > stack[selected][5][i][1]) ? stack[selected][5][i][1] : minY;
+                maxY = (maxY < stack[selected][5][i][1]) ? stack[selected][5][i][1] : maxY;
+            }
+            ctx.strokeRect(minX, minY, (maxX-minX), (maxY-minY));
+            console.log(minX, minY, maxX, maxY);
+        } else if (stack[selected][0]=="text"){
+            ctx.font = `${4*shapes[selected][4]}px Arial`;
+            let w = ctx.measureText(stack[selected][5])
+            ctx.lineWidth=1;
+            ctx.strokeStyle = "#000000";
+            ctx.strokeRect(stack[selected][1][0], stack[selected][1][1], w.width, -4*shapes[selected][4]);
+        }
+    }
+    ctx.setLineDash([0]);
 }
 click_event = new CustomEvent('click');
 
@@ -188,10 +219,20 @@ window.addEventListener('keydown', (event) => {
     document.getElementById('redo').click();
     } else if ((event.metaKey || event.ctrlKey)&&event.key=='z'){
         document.getElementById('undo').click();
+    } else if ((mode!="text")&&(selected!=-1&&event.key=="Backspace")&&(shapes[selected][0]!="text")){
+        shapes.splice(selected, 1);
+        localStorage.setItem("stack", shapes)
+        selected = -1;
+        drawCanvas(shapes);
+    } else if (selected!=-1&&event.key=="Delete"){
+        shapes.splice(selected, 1);
+        localStorage.setItem("stack", shapes)
+        selected = -1;
+        drawCanvas(shapes);
     } else if ((event.metaKey || event.ctrlKey)&&event.key=='c'){
         
     }
-    else if (mode=="text" || mode=="pointer"){
+    else if ((mode=="text" || mode=="pointer")&&(selected!=-1)){
         if ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=+!@#$%^&*(){}][\\|;':\"<>?,./`~ ".includes(event.key)){
             shapes[selected][5]+=event.key;
             drawCanvas(shapes);
@@ -324,7 +365,7 @@ canvas.addEventListener('mousedown', (event) => {
             } else if (shapes[i][0]=="line"){
                 let a = areaofTriangle(distanceBtwnPoints(shapes[i][1][0], shapes[i][1][1], shapes[i][2][0], shapes[i][2][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][1][0], shapes[i][1][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][2][0], shapes[i][2][1]));
                 console.log(a);
-                if (a<1000){
+                if ((a/distanceBtwnPoints(shapes[i][1][0], shapes[i][1][1], shapes[i][2][0], shapes[i][2][1]))<1){
                     selected = i;
                     found = 1;
                     break;
@@ -333,7 +374,7 @@ canvas.addEventListener('mousedown', (event) => {
                 for (let j = shapes[i][5].length-1; j > 0; j--){
                     let a = areaofTriangle(distanceBtwnPoints(shapes[i][5][j][0], shapes[i][5][j][1], shapes[i][5][j-1][0], shapes[i][5][j-1][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][5][j][0], shapes[i][5][j][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][5][j-1][0], shapes[i][5][j-1][1]));
                     console.log(a);
-                    if (a<1000){
+                    if ((a/distanceBtwnPoints(shapes[i][5][j][0], shapes[i][5][j][1], shapes[i][5][j-1][0], shapes[i][5][j-1][1]))<1){
                         selected = i;
                         found = 1;
                         break;
@@ -387,7 +428,7 @@ canvas.addEventListener('mousedown', (event) => {
                     break;
                 }
             } else if (shapes[i][0]=="img"){
-                if ((event.clientX)>shapes[i]&&
+                if ((event.clientX)>Math.min(shapes[i][1][0], shapes[i][2][0])&&
                 (event.clientX)<Math.max(shapes[i][1][0], shapes[i][2][0])&&
                 (event.clientY)>Math.min(shapes[i][1][1], shapes[i][2][1])&&
                 (event.clientY)<Math.max(shapes[i][1][1], shapes[i][2][1])){
