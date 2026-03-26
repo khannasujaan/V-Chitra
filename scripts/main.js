@@ -141,6 +141,19 @@ function drawCanvas(stack){
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.stroke();
             }
+        } else if (stack[i][0]=="img"){
+            const img = new Image();
+            img.src = stack[i][3]
+            let w = Math.abs(stack[i][2][0]-stack[i][1][0]);
+            let h = Math.abs(stack[i][2][1]-stack[i][1][1]);
+            if (img.complete) {
+                ctx.drawImage(img, Math.min(stack[i][1][0], stack[i][2][0]), Math.min(stack[i][1][1], stack[i][2][1]), w, h);
+            } else {
+                img.onload = () => {
+                    ctx.drawImage(img, Math.min(stack[i][1][0], stack[i][2][0]), Math.min(stack[i][1][1], stack[i][2][1]), w, h);
+                }
+            }
+            ctx.stroke();
         }
     }
 }
@@ -319,6 +332,14 @@ canvas.addEventListener('mousedown', (event) => {
         ctx.lineWidth = lineWidth;
         console.log(tempCoords);
         console.log("Drawing being made");
+    } else if (mode == "img"){
+        ctx.strokeStyle = color;
+        tempCoords[0] = event.clientX;
+        tempCoords[1] = event.clientY;
+        ctx.beginPath();
+        ctx.lineWidth = lineWidth;
+        console.log(tempCoords);
+        console.log("Drawing being made");
     }
     drawCanvas(shapes);
 });
@@ -390,6 +411,14 @@ window.addEventListener('mouseup', (event) => {
         triArr.push(color);
         triArr.push(lineWidth);
         shapes.push(triArr);
+    } else if (mode == "img"){
+        console.log("Pushing img");
+        const imgArr = [];
+        imgArr.push("img");
+        imgArr.push([tempCoords[0], tempCoords[1]]);
+        imgArr.push([event.clientX, event.clientY]);
+        imgArr.push(`https://picsum.photos/id/${(Math.floor(Math.random() * 101)+1)}/${Math.abs(tempCoords[0]-event.clientX)}/${Math.abs(tempCoords[1]-event.clientY)}`);
+        shapes.push(imgArr);
     }
     console.log(JSON.stringify(shapes));
     drawCanvas(shapes);
@@ -502,6 +531,12 @@ window.addEventListener('mousemove', (event) => {
             ctx.lineTo((event.clientX+tempCoords[0])/2, tempCoords[1]);
             ctx.lineTo(tempCoords[0], event.clientY);
             ctx.stroke();
+        } else if (mode == "img"){
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.moveTo(tempCoords[0], tempCoords[1]);
+            ctx.strokeRect(tempCoords[0], tempCoords[1], event.clientX-tempCoords[0], event.clientY-tempCoords[1]);
         }
     }
 });
