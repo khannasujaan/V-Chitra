@@ -159,7 +159,7 @@ function drawCanvas(stack){
             // ctx.moveTo(stack[i][1][0], stack[i][1][1]);
             // ctx.strokeRect(stack[i][1][0], stack[i][1][1], stack[i][2][0]-stack[i][1][0], stack[i][2][1]-stack[i][1][1]);
             ctx.fillStyle = stack[i][3];
-            ctx.font = `${4*stack[i][4]}px serif`;
+            ctx.font = `${4*stack[i][4]}px Arial`;
             ctx.fillText(stack[i][5], stack[i][1][0]+2, stack[i][1][1]-3);
             ctx.stroke();
         } else if (stack[i][0]=="img"){
@@ -191,7 +191,7 @@ window.addEventListener('keydown', (event) => {
     } else if ((event.metaKey || event.ctrlKey)&&event.key=='c'){
         
     }
-    else if (mode=="text"){
+    else if (mode=="text" || mode=="pointer"){
         if ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=+!@#$%^&*(){}][\\|;':\"<>?,./`~ ".includes(event.key)){
             shapes[selected][5]+=event.key;
             drawCanvas(shapes);
@@ -377,8 +377,17 @@ canvas.addEventListener('mousedown', (event) => {
                     break;
                 }
             } else if (shapes[i][0]=="text"){
+                ctx.font = `${4*shapes[i][4]}px Arial`;
+                if ((event.clientX)>shapes[i][1][0]&&
+                (event.clientX)<(shapes[i][1][0]+ctx.measureText(shapes[i][5]).width)&&
+                (event.clientY)>(shapes[i][1][1]-4*shapes[i][4])&&
+                (event.clientY)<shapes[i][1][1]){
+                    selected = i;
+                    found = 1 ;
+                    break;
+                }
             } else if (shapes[i][0]=="img"){
-                if ((event.clientX)>Math.min(shapes[i][1][0], shapes[i][2][0])&&
+                if ((event.clientX)>shapes[i]&&
                 (event.clientX)<Math.max(shapes[i][1][0], shapes[i][2][0])&&
                 (event.clientY)>Math.min(shapes[i][1][1], shapes[i][2][1])&&
                 (event.clientY)<Math.max(shapes[i][1][1], shapes[i][2][1])){
