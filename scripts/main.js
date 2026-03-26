@@ -7,6 +7,7 @@ let canvasDown = false;
 var brushArray = [];
 var redoStack = [];
 var tempCoords = [0, 0];
+var selected = -1;
 if(localStorage.getItem("stack")==null){
     var shapes=[];
     var mode = "pointer";
@@ -141,6 +142,16 @@ function drawCanvas(stack){
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.stroke();
             }
+        } else if (stack[i][0]=="text"){
+            ctx.beginPath();
+            ctx.strokeStyle = stack[i][3];
+            // ctx.lineWidth = 1;
+            // ctx.moveTo(stack[i][1][0], stack[i][1][1]);
+            // ctx.strokeRect(stack[i][1][0], stack[i][1][1], stack[i][2][0]-stack[i][1][0], stack[i][2][1]-stack[i][1][1]);
+            ctx.fillStyle = stack[i][3];
+            ctx.font = `${4*stack[i][4]}px serif`;
+            ctx.fillText(stack[i][5], stack[i][1][0]+2, stack[i][1][1]-3);
+            ctx.stroke();
         } else if (stack[i][0]=="img"){
             const img = new Image();
             img.src = stack[i][3]
@@ -169,31 +180,42 @@ window.addEventListener('keydown', (event) => {
         document.getElementById('undo').click();
     } else if ((event.metaKey || event.ctrlKey)&&event.key=='c'){
         
-    } else if (event.key == 'p'){
-        document.getElementById('pointer').click();
-    } else if (event.key == 'b'){
-        document.getElementById('brush').click();
-    } else if (event.key == 'l'){
-        document.getElementById('line').click();
-    } else if (event.key == 's'){
-        document.getElementById('square').click();
-    } else if (event.key == 'c'){
-        document.getElementById('circle').click();
-    } else if (event.key == 'r'){
-        document.getElementById('rect').click();
-    } else if (event.key == 't'){
-        document.getElementById('tri').click();
-    } else if (event.key == '+'){
-        if (lineWidthSlider.value<16){
-            lineWidthSlider.value++;
-            lineWidth++;
-            document.getElementById("displayLineWidth").innerHTML = lineWidth;
+    }
+    else if (mode=="text"){
+        if ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=+!@#$%^&*(){}][\\|;':\"<>?,./`~ ".includes(event.key)){
+            shapes[selected][5]+=event.key;
+            drawCanvas(shapes);
+        } else if (event.key == "Backspace"){
+            shapes[selected][5]=shapes[selected][5].slice(0, -1);
+            drawCanvas(shapes);
         }
-    } else if (event.key == '-'){
-        if (lineWidthSlider.value>1){
-            lineWidthSlider.value--;
-            lineWidth--;
-            document.getElementById("displayLineWidth").innerHTML = lineWidth;
+    } else {
+        if (event.key == 'p'){
+            document.getElementById('pointer').click();
+        } else if (event.key == 'b'){
+            document.getElementById('brush').click();
+        } else if (event.key == 'l'){
+            document.getElementById('line').click();
+        } else if (event.key == 's'){
+            document.getElementById('square').click();
+        } else if (event.key == 'c'){
+            document.getElementById('circle').click();
+        } else if (event.key == 'r'){
+            document.getElementById('rect').click();
+        } else if (event.key == 't'){
+            document.getElementById('tri').click();
+        } else if (event.key == '+'){
+            if (lineWidthSlider.value<16){
+                lineWidthSlider.value++;
+                lineWidth++;
+                document.getElementById("displayLineWidth").innerHTML = lineWidth;
+            }
+        } else if (event.key == '-'){
+            if (lineWidthSlider.value>1){
+                lineWidthSlider.value--;
+                lineWidth--;
+                document.getElementById("displayLineWidth").innerHTML = lineWidth;
+            }
         }
     }
 });
@@ -249,6 +271,12 @@ toolBar.addEventListener('click', (event) => {
             }
         } else {
             document.getElementById(mode).classList.remove("activeMode");
+            if (mode=="text"){
+                if (shapes[shapes.length-1][5] == ""){
+                    shapes.pop();
+                    localStorage.setItem("stack", JSON.stringify(shapes));
+                }
+            }
             mode = element.id;
             document.getElementById(mode).classList.add("activeMode");
             console.log(mode);
@@ -340,6 +368,14 @@ canvas.addEventListener('mousedown', (event) => {
         ctx.lineWidth = lineWidth;
         console.log(tempCoords);
         console.log("Drawing being made");
+    } else if (mode == "text"){
+        ctx.strokeStyle = color;
+        tempCoords[0] = event.clientX;
+        tempCoords[1] = event.clientY;
+        ctx.beginPath();
+        ctx.lineWidth = lineWidth;
+        console.log(tempCoords);
+        console.log("Drawing being made");
     }
     drawCanvas(shapes);
 });
@@ -411,6 +447,17 @@ window.addEventListener('mouseup', (event) => {
         triArr.push(color);
         triArr.push(lineWidth);
         shapes.push(triArr);
+    } else if (mode == "text"){
+        console.log("Pushing text");
+        const textArr = [];
+        textArr.push("text");
+        textArr.push([tempCoords[0], tempCoords[1]]);
+        textArr.push([tempCoords[0]+200, tempCoords[1]-4*lineWidth]);
+        textArr.push(color);
+        textArr.push(lineWidth);
+        textArr.push("");
+        shapes.push(textArr);
+        selected = shapes.length-1;
     } else if (mode == "img"){
         console.log("Pushing img");
         const imgArr = [];
