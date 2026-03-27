@@ -104,6 +104,7 @@ function drawCanvas(stack){
             ctx.lineTo(stack[i][2][0], stack[i][2][1]);
             ctx.lineTo((stack[i][2][0]+stack[i][1][0])/2, stack[i][1][1]);
             ctx.lineTo(stack[i][1][0], stack[i][2][1]);
+            ctx.lineTo(stack[i][2][0], stack[i][2][1]);
             ctx.stroke();
         } else if (stack[i][0]=="square"){
             ctx.beginPath();
@@ -398,7 +399,7 @@ canvas.addEventListener('mousedown', (event) => {
     if (mode=="pointer"){
         let found = -1;
         if (selected!=-1){
-            if (shapes[selected][0]=="line" || shapes[selected][0]=="rect" || shapes[selected][0]=="square" || shapes[selected][0]=="tri" || shapes[selected][0]=="circle"){
+            if (shapes[selected][0]=="line" || shapes[selected][0]=="rect" || shapes[selected][0]=="square" || shapes[selected][0]=="tri" || shapes[selected][0]=="circle"||shapes[selected][0]=="img"){
                 if (distanceBtwnPoints(event.clientX, event.clientY, shapes[selected][1][0], shapes[selected][1][1])<10){
                     resize = 1; //top left
                     found = 1;
@@ -830,6 +831,7 @@ window.addEventListener('mousemove', (event) => {
             ctx.lineTo(event.clientX, event.clientY);
             ctx.lineTo((event.clientX+tempCoords[0])/2, tempCoords[1]);
             ctx.lineTo(tempCoords[0], event.clientY);
+            ctx.lineTo(event.clientX, event.clientY);
             ctx.stroke();
         } else if (mode == "img"){
             ctx.beginPath();
