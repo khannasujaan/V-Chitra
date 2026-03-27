@@ -10,6 +10,7 @@ var tempCoords = [0, 0];
 var selected = -1;
 var dragselected = 0;
 var sqCoords = [];
+var resize = -1;
 if(localStorage.getItem("stack")==null){
     var shapes=[];
     var mode = "pointer";
@@ -186,16 +187,36 @@ function drawCanvas(stack){
         ctx.setLineDash([6]);
         if (lightmode==1){
             ctx.strokeStyle = "#000000";
+            ctx.fillStyle = "#000000";
         } else {
             ctx.strokeStyle = "#FFFFFF";
+            ctx.fillStyle = "#FFFFFF";
         }
         if (stack[selected][0]=="rect" || stack[selected][0]=="tri" || stack[selected][0]=="line" || stack[selected][0]=="img"){
             ctx.strokeRect(stack[selected][1][0], stack[selected][1][1], stack[selected][2][0]-stack[selected][1][0], stack[selected][2][1]-stack[selected][1][1]);
+            ctx.beginPath();
+            ctx.arc(stack[selected][1][0], stack[selected][1][1], 10, 0, 2*Math.PI);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(stack[selected][2][0], stack[selected][2][1], 10, 0, 2*Math.PI);
+            ctx.stroke();
         } else if (stack[selected][0]=="circle"){
             let r0 = Math.sqrt((stack[selected][2][0]-stack[selected][1][0])**2+(stack[selected][2][1]-stack[selected][1][1])**2)/2;
             ctx.strokeRect((stack[selected][1][0]+stack[selected][2][0])/2-r0, (stack[selected][1][1]+stack[selected][2][1])/2-r0, 2*r0, 2*r0);
+            ctx.beginPath();
+            ctx.arc(stack[selected][1][0], stack[selected][1][1], 10, 0, 2*Math.PI);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(stack[selected][2][0], stack[selected][2][1], 10, 0, 2*Math.PI);
+            ctx.stroke();
         } else if (stack[selected][0]=="square"){
             ctx.strokeRect(Math.min(stack[selected][1][0], stack[selected][2][0]), Math.min(stack[selected][1][1], stack[selected][2][1]), Math.min(Math.abs(stack[selected][1][0]-stack[selected][2][0])), Math.min(Math.abs(stack[selected][1][1]-stack[selected][2][1])));
+            ctx.beginPath();
+            ctx.arc(stack[selected][1][0], stack[selected][1][1], 10, 0, 2*Math.PI);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(stack[selected][2][0], stack[selected][2][1], 10, 0, 2*Math.PI);
+            ctx.stroke();
         } else if (stack[selected][0]=="brush"){
             let minX=stack[selected][1][0], minY=stack[selected][1][1], maxX=stack[selected][1][0], maxY=stack[selected][1][1];
             for (let i = 0; i < stack[selected][5].length-1; i++){
@@ -212,8 +233,8 @@ function drawCanvas(stack){
             ctx.lineWidth=1;
             ctx.strokeRect(stack[selected][1][0], stack[selected][1][1], w.width, -4*shapes[selected][4]);
         }
+        ctx.setLineDash([0]);
     }
-    ctx.setLineDash([0]);
 }
 click_event = new CustomEvent('click');
 
@@ -291,6 +312,9 @@ toolBar.addEventListener('click', (event) => {
             console.log("undo");
             if (shapes.length > 0){
                 redoStack.push(shapes[shapes.length-1]);
+                if (shapes.length-1==selected){
+                    selected=-1;
+                }
                 shapes.pop();
                 drawCanvas(shapes);
                 localStorage.setItem("stack", JSON.stringify(shapes));
@@ -334,8 +358,10 @@ toolBar.addEventListener('click', (event) => {
                     localStorage.setItem("stack", JSON.stringify(shapes));
                 }
                 selected = -1;
+                drawCanvas(shapes);
             } else if (mode=="pointer"){
                 selected = -1;
+                drawCanvas(shapes);
             }
             mode = element.id;
             document.getElementById(mode).classList.add("activeMode");
@@ -363,6 +389,20 @@ canvas.addEventListener('mousedown', (event) => {
     redoStack=[];
     if (mode=="pointer"){
         let found = -1;
+        if (selected!=-1){
+            if (shapes[selected][0]=="line" || shapes[selected][0]=="rect" || shapes[selected][0]=="square" || shapes[selected][0]=="tri" || shapes[selected][0]=="circle"){
+                if (distanceBtwnPoints(event.clientX, event.clientY, shapes[selected][1][0], shapes[selected][1][1])<10){
+                    resize = 1; //top left
+                    found = 1;
+                    console.log("resize 1");
+                } else if (distanceBtwnPoints(event.clientX, event.clientY, shapes[selected][2][0],shapes[selected][2][1])<10){
+                    resize = 2; // bottomright
+                    found = 1;
+                    console.log("resize 2");
+                }
+            }
+        } 
+        if (found==-1){
         // if ((selected!=-1)&&(shapes[selected]))
         for (let i = shapes.length-1; i>=0; i--){
             console.log("pointer");
@@ -443,6 +483,7 @@ canvas.addEventListener('mousedown', (event) => {
                     break;
                 }
             }
+        }
         
         }
         if (found == 1){
@@ -542,6 +583,10 @@ window.addEventListener('mouseup', (event) => {
     // console.log(stateStack[2]);
     // console.log(stateStack[3]);
     if (mode=="pointer"){
+        if (resize!=-1){
+            resize = -1;
+            drawCanvas(shapes);
+        }
         if (dragselected==1){
             // shapes[selected][1][0] += (event.clientX-tempCoords[0]);
             // shapes[selected][1][1] += (event.clientY-tempCoords[1]);
@@ -639,6 +684,21 @@ window.addEventListener('mousemove', (event) => {
         console.log("pointer moving");
         drawCanvas(shapes);
         if (mode=="pointer"){
+            if (resize!=-1){
+                if (resize == 1){
+                    shapes[selected][1][0] += (event.clientX-tempCoords[0]);
+                    shapes[selected][1][1] += (event.clientY-tempCoords[1]);
+                    tempCoords[0]=event.clientX;
+                    tempCoords[1]=event.clientY;
+                    drawCanvas(shapes);
+                } else if (resize == 2){
+                    shapes[selected][2][0] += (event.clientX-tempCoords[0]);
+                    shapes[selected][2][1] += (event.clientY-tempCoords[1]);
+                    tempCoords[0]=event.clientX;
+                    tempCoords[1]=event.clientY;
+                    drawCanvas(shapes);
+                }
+            } else
             if (dragselected==1){
                 if (shapes[selected][0]!="brush"){
                     shapes[selected][1][0] += (event.clientX-tempCoords[0]);
