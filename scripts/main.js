@@ -37,7 +37,7 @@ function distanceBtwnPoints(x1, y1, x2, y2){
 }
 function areaofTriangle(a, b, c){
     let s = (a+b+c)/2;
-    return Math.sqrt(s*(s-a)*(s-b)*(s-c));
+    return Math.sqrt(Math.abs(s*(s-a)*(s-b)*(s-c)));
 }
 
 document.getElementById(mode).classList.add("activeMode");
@@ -237,9 +237,8 @@ function drawCanvas(stack){
         ctx.setLineDash([0]);
     }
 }
-click_event = new CustomEvent('click');
-
 canvasSize();
+window.addEventListener("resize", canvasSize);
 // var stateStack = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
 window.addEventListener('keydown', (event) => {
     console.log(event.key);
@@ -249,12 +248,12 @@ window.addEventListener('keydown', (event) => {
         document.getElementById('undo').click();
     } else if ((mode!="text")&&(selected!=-1&&event.key=="Backspace")&&(shapes[selected][0]!="text")){
         shapes.splice(selected, 1);
-        localStorage.setItem("stack", shapes)
+        localStorage.setItem("stack", JSON.stringify(shapes));
         selected = -1;
         drawCanvas(shapes);
     } else if (selected!=-1&&event.key=="Delete"){
         shapes.splice(selected, 1);
-        localStorage.setItem("stack", shapes)
+        localStorage.setItem("stack", JSON.stringify(shapes));
         selected = -1;
         drawCanvas(shapes);
     } else if ((event.metaKey || event.ctrlKey)&&event.key=='c'){
@@ -263,9 +262,11 @@ window.addEventListener('keydown', (event) => {
     else if ((mode=="text" || mode=="pointer")&&(selected!=-1)){
         if ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=+!@#$%^&*(){}][\\|;':\"<>?,./`~ ".includes(event.key)){
             shapes[selected][5]+=event.key;
+            localStorage.setItem("stack", JSON.stringify(shapes));
             drawCanvas(shapes);
         } else if (event.key == "Backspace"){
             shapes[selected][5]=shapes[selected][5].slice(0, -1);
+            localStorage.setItem("stack", JSON.stringify(shapes));
             drawCanvas(shapes);
         }
     } else {
