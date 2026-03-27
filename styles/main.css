@@ -1,0 +1,96 @@
+* {
+    font-family: Arial;
+    box-sizing: border-box;
+    border: 0px;
+    margin: 0px;
+}
+
+#headerlogo {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+
+#toolGrid {
+    display: block;
+    position: absolute;
+    top: 1rem;
+    text-align: center;
+    width: 100%;
+    z-index:10;
+}
+
+.toggle{
+    display: block;
+    position: absolute;
+    right: 1rem;
+    opacity: 0.7;
+}
+
+.toggle:hover{
+    opacity: 1;
+}
+
+.toolbar {
+    display: flex;
+    /* grid-template-columns: repeat(8, 1fr); */
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap:0.5rem;
+}
+
+.activeMode {
+    background-color: #d9d9d9;
+}
+.activeMode > svg {
+    stroke: #000000;
+    /* fill: #000000; */
+}
+
+#headerlogo {
+    margin: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.tool {
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.tool:hover{
+    opacity: 1;
+}
+
+.canvasArea {
+    display: flex;
+}
+
+/* #drawCanvas {
+    border: 2px solid rgb(105, 174, 235);   
+
+} */
+
+.lineColorWidth {
+    z-index: 20;
+    display: flex;
+    position: absolute;
+    width: 100%;
+    bottom: 1rem;
+    text-align: center;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.lineWidth {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#lineWidthSlider {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
