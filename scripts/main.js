@@ -499,14 +499,16 @@ canvas.addEventListener('mousedown', (event) => {
             tempCoords[0] = event.clientX;
             tempCoords[1] = event.clientY;
             dragselected = 1;
-            lineWidth = shapes[selected][4];
-            document.getElementById("lineWidthSlider").value = shapes[selected][4];
-            document.getElementById("displayLineWidth").innerHTML = shapes[selected][4];
-            localStorage.setItem("lineWidth", lineWidth);
-            color = shapes[selected][3];
-            document.getElementById("color").value = color;
-            localStorage.setItem("color", color);
-            lineWidthSlider.style.accentColor=color;
+            if (shapes[selected][0]!="img"){
+                lineWidth = shapes[selected][4];
+                document.getElementById("lineWidthSlider").value = shapes[selected][4];
+                document.getElementById("displayLineWidth").innerHTML = shapes[selected][4];
+                localStorage.setItem("lineWidth", lineWidth);
+                color = shapes[selected][3];
+                document.getElementById("color").value = color;
+                localStorage.setItem("color", color);
+                lineWidthSlider.style.accentColor=color;
+            }
             
         } else {
             selected = -1;
@@ -704,33 +706,33 @@ window.addEventListener('mousemove', (event) => {
         if (mode=="pointer"){
             if (resize!=-1){
                 if (shapes[selected][0]=="square"){
-                if (resize == 1){
-                    shapes[selected][1][0] += (event.clientX-tempCoords[0]);
-                    shapes[selected][1][1] += (event.clientX-tempCoords[0]);
-                    tempCoords[0]=event.clientX;
-                    tempCoords[1]=event.clientY;
-                    drawCanvas(shapes);
-                } else if (resize == 2){
-                    shapes[selected][2][0] += (event.clientX-tempCoords[0]);
-                    shapes[selected][2][1] += (event.clientX-tempCoords[0]);
-                    tempCoords[0]=event.clientX;
-                    tempCoords[1]=event.clientY;
-                    drawCanvas(shapes);
-                }
+                    if (resize == 1){
+                        shapes[selected][1][0] += (event.clientX-tempCoords[0]);
+                        shapes[selected][1][1] += (event.clientX-tempCoords[0]);
+                        tempCoords[0]=event.clientX;
+                        tempCoords[1]=event.clientY;
+                        drawCanvas(shapes);
+                    } else if (resize == 2){
+                        shapes[selected][2][0] += (event.clientX-tempCoords[0]);
+                        shapes[selected][2][1] += (event.clientX-tempCoords[0]);
+                        tempCoords[0]=event.clientX;
+                        tempCoords[1]=event.clientY;
+                        drawCanvas(shapes);
+                    }
                 } else {
-                if (resize == 1){
-                    shapes[selected][1][0] += (event.clientX-tempCoords[0]);
-                    shapes[selected][1][1] += (event.clientY-tempCoords[1]);
-                    tempCoords[0]=event.clientX;
-                    tempCoords[1]=event.clientY;
-                    drawCanvas(shapes);
-                } else if (resize == 2){
-                    shapes[selected][2][0] += (event.clientX-tempCoords[0]);
-                    shapes[selected][2][1] += (event.clientY-tempCoords[1]);
-                    tempCoords[0]=event.clientX;
-                    tempCoords[1]=event.clientY;
-                    drawCanvas(shapes);
-                }
+                    if (resize == 1){
+                        shapes[selected][1][0] += (event.clientX-tempCoords[0]);
+                        shapes[selected][1][1] += (event.clientY-tempCoords[1]);
+                        tempCoords[0]=event.clientX;
+                        tempCoords[1]=event.clientY;
+                        drawCanvas(shapes);
+                    } else if (resize == 2){
+                        shapes[selected][2][0] += (event.clientX-tempCoords[0]);
+                        shapes[selected][2][1] += (event.clientY-tempCoords[1]);
+                        tempCoords[0]=event.clientX;
+                        tempCoords[1]=event.clientY;
+                        drawCanvas(shapes);
+                    }
                 }
             } else
             if (dragselected==1){
