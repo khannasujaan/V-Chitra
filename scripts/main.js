@@ -374,11 +374,19 @@ lineWidthSlider.addEventListener('input', (event) => {
     lineWidth = event.target.value;
     document.getElementById("displayLineWidth").innerHTML = lineWidth;
     localStorage.setItem("lineWidth", lineWidth);
+    if (selected!=-1){
+        shapes[selected][4] = lineWidth;
+        drawCanvas(shapes);
+    }
 });
 document.getElementById("color").addEventListener('input', (event) => {
     color = event.target.value;
     localStorage.setItem("color", color);
     lineWidthSlider.style.accentColor=color;
+    if (selected!=-1){
+        shapes[selected][3] = color;
+        drawCanvas(shapes);
+    }
 });
 
 canvas.addEventListener('mousedown', (event) => {
@@ -490,6 +498,15 @@ canvas.addEventListener('mousedown', (event) => {
             tempCoords[0] = event.clientX;
             tempCoords[1] = event.clientY;
             dragselected = 1;
+            lineWidth = shapes[selected][4];
+            document.getElementById("lineWidthSlider").value = shapes[selected][4];
+            document.getElementById("displayLineWidth").innerHTML = shapes[selected][4];
+            localStorage.setItem("lineWidth", lineWidth);
+            color = shapes[selected][3];
+            document.getElementById("color").value = color;
+            localStorage.setItem("color", color);
+            lineWidthSlider.style.accentColor=color;
+            
         } else {
             selected = -1;
         }
