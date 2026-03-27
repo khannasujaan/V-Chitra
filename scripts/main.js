@@ -416,7 +416,7 @@ canvas.addEventListener('mousedown', (event) => {
         for (let i = shapes.length-1; i>=0; i--){
             console.log("pointer");
             if (shapes[i][0]=="clear"){
-                continue;
+                break;
             } else if (shapes[i][0]=="line"){
                 let a = areaofTriangle(distanceBtwnPoints(shapes[i][1][0], shapes[i][1][1], shapes[i][2][0], shapes[i][2][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][1][0], shapes[i][1][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][2][0], shapes[i][2][1]));
                 console.log(a);
@@ -703,6 +703,21 @@ window.addEventListener('mousemove', (event) => {
         drawCanvas(shapes);
         if (mode=="pointer"){
             if (resize!=-1){
+                if (shapes[selected][0]=="square"){
+                if (resize == 1){
+                    shapes[selected][1][0] += (event.clientX-tempCoords[0]);
+                    shapes[selected][1][1] += (event.clientX-tempCoords[0]);
+                    tempCoords[0]=event.clientX;
+                    tempCoords[1]=event.clientY;
+                    drawCanvas(shapes);
+                } else if (resize == 2){
+                    shapes[selected][2][0] += (event.clientX-tempCoords[0]);
+                    shapes[selected][2][1] += (event.clientX-tempCoords[0]);
+                    tempCoords[0]=event.clientX;
+                    tempCoords[1]=event.clientY;
+                    drawCanvas(shapes);
+                }
+                } else {
                 if (resize == 1){
                     shapes[selected][1][0] += (event.clientX-tempCoords[0]);
                     shapes[selected][1][1] += (event.clientY-tempCoords[1]);
@@ -715,6 +730,7 @@ window.addEventListener('mousemove', (event) => {
                     tempCoords[0]=event.clientX;
                     tempCoords[1]=event.clientY;
                     drawCanvas(shapes);
+                }
                 }
             } else
             if (dragselected==1){
