@@ -17,12 +17,14 @@ if(localStorage.getItem("stack")==null){
     var color = "#000000";
     var lineWidth = 1;
     var lightmode = 1;
+    var angle = 0;
 } else {
     var shapes = JSON.parse(localStorage.getItem("stack"));
     var mode = localStorage.getItem("mode");
     var color = localStorage.getItem("color");
     var lineWidth = localStorage.getItem("lineWidth");
     var lightmode = localStorage.getItem("lightmode");
+    var angle = localStorage.getItem("angle");
 }
 if (lightmode==1){
     document.querySelector("#toggle path").setAttribute("d", "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z");
@@ -44,6 +46,7 @@ document.getElementById(mode).classList.add("activeMode");
 document.getElementById("color").value = color;
 document.getElementById("lineWidthSlider").value = lineWidth;
 document.getElementById("displayLineWidth").innerHTML = lineWidth;
+document.getElementById("angle").value = angle;
 lineWidthSlider.style.accentColor=color;
 function canvasSize(){
     canvas.width = window.innerWidth;
@@ -87,8 +90,12 @@ function drawCanvas(stack){
             ctx.beginPath();
             ctx.strokeStyle = stack[i][3];
             ctx.lineWidth = stack[i][4];
-            ctx.moveTo(stack[i][1][0], stack[i][1][1]);
-            ctx.strokeRect(stack[i][1][0], stack[i][1][1], stack[i][2][0]-stack[i][1][0], stack[i][2][1]-stack[i][1][1]);
+            ctx.translate((stack[i][1][0]+stack[i][2][0])/2, (stack[i][1][1]+stack[i][2][1])/2);
+            ctx.rotate(stack[i][5]/180*Math.PI);
+            ctx.moveTo(-stack[i][1][0]/2, -stack[i][1][1]/2);
+            ctx.strokeRect(-(stack[i][2][0]-stack[i][1][0])/2, -(stack[i][2][1]-stack[i][1][1])/2, stack[i][2][0]-stack[i][1][0], stack[i][2][1]-stack[i][1][1]);
+            ctx.rotate(2*Math.PI-stack[i][5]/180*Math.PI);
+            ctx.translate(-(stack[i][1][0]+stack[i][2][0])/2, -(stack[i][1][1]+stack[i][2][1])/2);
         } else if (stack[i][0]=="circle"){
             ctx.beginPath();
             ctx.strokeStyle = stack[i][3];
@@ -100,18 +107,24 @@ function drawCanvas(stack){
             ctx.beginPath();
             ctx.strokeStyle = stack[i][3];
             ctx.lineWidth = stack[i][4];
-            ctx.moveTo(stack[i][1][0], stack[i][2][1]);
-            ctx.lineTo(stack[i][2][0], stack[i][2][1]);
-            ctx.lineTo((stack[i][2][0]+stack[i][1][0])/2, stack[i][1][1]);
-            ctx.lineTo(stack[i][1][0], stack[i][2][1]);
-            ctx.lineTo(stack[i][2][0], stack[i][2][1]);
+            ctx.translate((stack[i][1][0]+stack[i][2][0])/2, (stack[i][1][1]+stack[i][2][1])/2);
+            ctx.rotate(stack[i][5]/180*Math.PI);
+            ctx.moveTo((stack[i][1][0]-stack[i][2][0])/2, (stack[i][2][1]-stack[i][1][1])/2);
+            ctx.lineTo(stack[i][2][0]-(stack[i][1][0]+stack[i][2][0])/2, stack[i][2][1]-(stack[i][1][1]+stack[i][2][1])/2);
+            ctx.lineTo((stack[i][2][0]+stack[i][1][0])/2-(stack[i][1][0]+stack[i][2][0])/2, stack[i][1][1]-(stack[i][1][1]+stack[i][2][1])/2);
+            ctx.lineTo((stack[i][1][0]-stack[i][2][0])/2, (stack[i][2][1]-stack[i][1][1])/2);
+            ctx.lineTo(stack[i][2][0]-(stack[i][1][0]+stack[i][2][0])/2, stack[i][2][1]-(stack[i][1][1]+stack[i][2][1])/2);
             ctx.stroke();
+            ctx.rotate(2*Math.PI-stack[i][5]/180*Math.PI);
+            ctx.translate(-(stack[i][1][0]+stack[i][2][0])/2, -(stack[i][1][1]+stack[i][2][1])/2);
         } else if (stack[i][0]=="square"){
             ctx.beginPath();
             ctx.strokeStyle = stack[i][3];
             ctx.lineWidth = stack[i][4];
-            ctx.moveTo(stack[i][1][0], stack[i][1][1]);
-            ctx.strokeRect(stack[i][1][0], stack[i][1][1], stack[i][2][0]-stack[i][1][0], stack[i][2][1] - stack[i][1][1]);
+            ctx.translate((stack[i][1][0]+stack[i][2][0])/2, (stack[i][1][1]+stack[i][2][1])/2);
+            ctx.rotate(stack[i][5]/180*Math.PI);
+            ctx.moveTo(-stack[i][1][0]/2, -stack[i][1][1]/2);
+            ctx.strokeRect(-(stack[i][2][0]-stack[i][1][0])/2, -(stack[i][2][1]-stack[i][1][1])/2, stack[i][2][0]-stack[i][1][0], stack[i][2][1]-stack[i][1][1]);
             // if (Math.abs(stack[i][2][0] - stack[i][1][0]) > Math.abs(stack[i][2][1] - stack[i][1][1])){
             //     if ((stack[i][2][0] - stack[i][1][0])*((stack[i][2][1] - stack[i][1][1]))>0){
             //         ctx.lineTo(stack[i][1][0], stack[i][2][1]);
@@ -146,6 +159,8 @@ function drawCanvas(stack){
             //     }  
             // }
             ctx.stroke();
+            ctx.rotate(2*Math.PI-stack[i][5]/180*Math.PI);
+            ctx.translate(-(stack[i][1][0]+stack[i][2][0])/2, -(stack[i][1][1]+stack[i][2][1])/2);
         } else if (stack[i][0]=="clear"){
             if (lightmode==1){
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -257,7 +272,7 @@ window.addEventListener('keydown', (event) => {
         selected = -1;
         drawCanvas(shapes);
     } else if ((event.metaKey || event.ctrlKey)&&event.key=='c'){
-        
+
     }
     else if ((mode=="text" || mode=="pointer")&&(selected!=-1)){
         if ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=+!@#$%^&*(){}][\\|;':\"<>?,./`~ ".includes(event.key)){
@@ -390,6 +405,16 @@ document.getElementById("color").addEventListener('input', (event) => {
         drawCanvas(shapes);
     }
 });
+document.getElementById("angle").addEventListener("input", (event) => {
+    angle = event.target.value;
+    localStorage.setItem("angle", angle);
+    if (selected!=-1){
+        if ("rect square tri".includes(shapes[selected][0])){
+            drawCanvas(shapes);
+            shapes[selected][5] = angle;
+        }
+    }
+})
 
 function getCoords(event) {
     if (event.touches && event.touches.length > 0) {
@@ -582,6 +607,7 @@ function mouseTouchEnd(event) {
         rectArr.push([clientX, clientY]);
         rectArr.push(color);
         rectArr.push(lineWidth);
+        rectArr.push(angle);
         shapes.push(rectArr);
     } else if (mode == "square"){
         console.log("Pushing square");
@@ -591,6 +617,7 @@ function mouseTouchEnd(event) {
         sqArr.push([sqCoords[0], sqCoords[1]]);
         sqArr.push(color);
         sqArr.push(lineWidth);
+        sqArr.push(angle);
         shapes.push(sqArr);
     } else if (mode == "circle"){
         console.log("Pushing circle");
@@ -609,6 +636,7 @@ function mouseTouchEnd(event) {
         triArr.push([clientX, clientY]);
         triArr.push(color);
         triArr.push(lineWidth);
+        triArr.push(angle);
         shapes.push(triArr);
     } else if (mode == "text"){
         console.log("Pushing text");
