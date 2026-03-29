@@ -391,8 +391,17 @@ document.getElementById("color").addEventListener('input', (event) => {
     }
 });
 
-canvas.addEventListener('mousedown', (event) => {
-    // console.log(event.clientX, event.clientY);
+function getCoords(event) {
+    if (event.touches && event.touches.length > 0) {
+        return { clientX: event.touches[0].clientX, clientY: event.touches[0].clientY };
+    } else if (event.changedTouches && event.changedTouches.length > 0) {
+        return { clientX: event.changedTouches[0].clientX, clientY: event.changedTouches[0].clientY };
+    }
+    return { clientX: event.clientX, clientY: event.clientY };
+}
+
+function mouseTouchStart(event) {
+    const { clientX, clientY } = getCoords(event);
     drawCanvas(shapes);
     drawingRn = true;
     canvasDown = true;
@@ -401,104 +410,101 @@ canvas.addEventListener('mousedown', (event) => {
         let found = -1;
         if (selected!=-1){
             if (shapes[selected][0]=="line" || shapes[selected][0]=="rect" || shapes[selected][0]=="square" || shapes[selected][0]=="tri" || shapes[selected][0]=="circle"||shapes[selected][0]=="img"){
-                if (distanceBtwnPoints(event.clientX, event.clientY, shapes[selected][1][0], shapes[selected][1][1])<10){
+                if (distanceBtwnPoints(clientX, clientY, shapes[selected][1][0], shapes[selected][1][1]) < 10){
                     resize = 1; //top left
                     found = 1;
                     console.log("resize 1");
-                } else if (distanceBtwnPoints(event.clientX, event.clientY, shapes[selected][2][0],shapes[selected][2][1])<10){
+                } else if (distanceBtwnPoints(clientX, clientY, shapes[selected][2][0], shapes[selected][2][1]) < 10){
                     resize = 2; // bottomright
                     found = 1;
                     console.log("resize 2");
                 }
             }
-        } 
+        }
         if (found==-1){
-        // if ((selected!=-1)&&(shapes[selected]))
-        for (let i = shapes.length-1; i>=0; i--){
-            console.log("pointer");
-            if (shapes[i][0]=="clear"){
-                break;
-            } else if (shapes[i][0]=="line"){
-                let a = areaofTriangle(distanceBtwnPoints(shapes[i][1][0], shapes[i][1][1], shapes[i][2][0], shapes[i][2][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][1][0], shapes[i][1][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][2][0], shapes[i][2][1]));
-                console.log(a);
-                if ((a/distanceBtwnPoints(shapes[i][1][0], shapes[i][1][1], shapes[i][2][0], shapes[i][2][1]))<1){
-                    selected = i;
-                    found = 1;
-                    break;
-                }
-            } else if (shapes[i][0]=="brush"){
-                for (let j = shapes[i][5].length-1; j > 0; j--){
-                    let a = areaofTriangle(distanceBtwnPoints(shapes[i][5][j][0], shapes[i][5][j][1], shapes[i][5][j-1][0], shapes[i][5][j-1][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][5][j][0], shapes[i][5][j][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][5][j-1][0], shapes[i][5][j-1][1]));
+            for (let i = shapes.length-1; i>=0; i--){
+                console.log("pointer");
+                if (shapes[i][0]=="clear"){
+                    break; 
+                } else if (shapes[i][0]=="line"){
+                    let a = areaofTriangle(distanceBtwnPoints(shapes[i][1][0], shapes[i][1][1], shapes[i][2][0], shapes[i][2][1]), distanceBtwnPoints(clientX, clientY, shapes[i][1][0], shapes[i][1][1]), distanceBtwnPoints(clientX, clientY, shapes[i][2][0], shapes[i][2][1]));
                     console.log(a);
-                    if ((a/distanceBtwnPoints(shapes[i][5][j][0], shapes[i][5][j][1], shapes[i][5][j-1][0], shapes[i][5][j-1][1]))<1){
+                    if ((a/distanceBtwnPoints(shapes[i][1][0], shapes[i][1][1], shapes[i][2][0], shapes[i][2][1]))<1){
                         selected = i;
                         found = 1;
                         break;
                     }
-
-                }
-            } else if (shapes[i][0]=="square"){
-                if ((event.clientX)>Math.min(shapes[i][1][0], shapes[i][2][0])&&
-                (event.clientX)<Math.max(shapes[i][1][0], shapes[i][2][0])&&
-                (event.clientY)>Math.min(shapes[i][1][1], shapes[i][2][1])&&
-                (event.clientY)<Math.max(shapes[i][1][1], shapes[i][2][1])){
-                    selected = i;
-                    found =1 ;
-                    break;
-                }
-            } else if (shapes[i][0]=="rect"){
-                if ((event.clientX)>Math.min(shapes[i][1][0], shapes[i][2][0])&&
-                (event.clientX)<Math.max(shapes[i][1][0], shapes[i][2][0])&&
-                (event.clientY)>Math.min(shapes[i][1][1], shapes[i][2][1])&&
-                (event.clientY)<Math.max(shapes[i][1][1], shapes[i][2][1])){
-                    selected = i;
-                    found =1 ;
-                    break;
-                }
-            } else if (shapes[i][0]=="circle"){
-                let r0 = Math.sqrt((shapes[i][2][0]-shapes[i][1][0])**2+(shapes[i][2][1]-shapes[i][1][1])**2)/2;
-                let r = Math.sqrt((event.clientX-shapes[i][1][0]/2-shapes[i][2][0]/2)**2+(event.clientY-shapes[i][1][1]/2-shapes[i][2][1]/2)**2);
-                if (r<r0){
-                    selected = i;
-                    found = 1;
-                    break;
-                }
-            } else if (shapes[i][0]=="tri"){
-                let areaofT = areaofTriangle(shapes[i][2][0]-shapes[i][1][0], distanceBtwnPoints(shapes[i][2][0], shapes[i][2][1], shapes[i][1][0]/2+shapes[i][2][0]/2, shapes[i][1][1]), distanceBtwnPoints(shapes[i][2][0], shapes[i][2][1], shapes[i][1][0]/2+shapes[i][2][0]/2, shapes[i][1][1]));
-                let a1 = areaofTriangle(distanceBtwnPoints(shapes[i][1][0]/2+shapes[i][2][0]/2, shapes[i][1][1], event.clientX, event.clientY), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][2][0], shapes[i][2][1]), distanceBtwnPoints(shapes[i][2][0], shapes[i][2][1], shapes[i][1][0]/2+shapes[i][2][0]/2, shapes[i][1][1]));
-                let a2 = areaofTriangle(shapes[i][2][0]-shapes[i][1][0], distanceBtwnPoints(event.clientX, event.clientY, shapes[i][2][0], shapes[i][2][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][1][0], shapes[i][2][1]));
-                let a3 = areaofTriangle(distanceBtwnPoints(shapes[i][1][0]/2+shapes[i][2][0]/2, shapes[i][1][1], event.clientX, event.clientY), distanceBtwnPoints(shapes[i][2][0], shapes[i][2][1], shapes[i][1][0]/2+shapes[i][2][0]/2, shapes[i][1][1]), distanceBtwnPoints(event.clientX, event.clientY, shapes[i][1][0], shapes[i][2][1]));
-                if ((a1+a2+a3-areaofT) < 1){
-                    selected = i;
-                    found = 1;
-                    break;
-                }
-            } else if (shapes[i][0]=="text"){
-                ctx.font = `${4*shapes[i][4]}px Arial`;
-                if ((event.clientX)>shapes[i][1][0]&&
-                (event.clientX)<(shapes[i][1][0]+ctx.measureText(shapes[i][5]).width)&&
-                (event.clientY)>(shapes[i][1][1]-4*shapes[i][4])&&
-                (event.clientY)<shapes[i][1][1]){
-                    selected = i;
-                    found = 1 ;
-                    break;
-                }
-            } else if (shapes[i][0]=="img"){
-                if ((event.clientX)>Math.min(shapes[i][1][0], shapes[i][2][0])&&
-                (event.clientX)<Math.max(shapes[i][1][0], shapes[i][2][0])&&
-                (event.clientY)>Math.min(shapes[i][1][1], shapes[i][2][1])&&
-                (event.clientY)<Math.max(shapes[i][1][1], shapes[i][2][1])){
-                    selected = i;
-                    found =1 ;
-                    break;
+                } else if (shapes[i][0]=="brush"){
+                    for (let j = shapes[i][5].length-1; j > 0; j--){
+                        let a = areaofTriangle(distanceBtwnPoints(shapes[i][5][j][0], shapes[i][5][j][1], shapes[i][5][j - 1][0], shapes[i][5][j - 1][1]), distanceBtwnPoints(clientX, clientY, shapes[i][5][j][0], shapes[i][5][j][1]), distanceBtwnPoints(clientX, clientY, shapes[i][5][j - 1][0], shapes[i][5][j - 1][1]));
+                        console.log(a);
+                        if ((a/distanceBtwnPoints(shapes[i][5][j][0], shapes[i][5][j][1], shapes[i][5][j - 1][0], shapes[i][5][j - 1][1])) < 1) {
+                            selected = i;
+                            found = 1;
+                            break;
+                        }
+                    }
+                } else if (shapes[i][0]=="square"){
+                    if ((clientX)>Math.min(shapes[i][1][0], shapes[i][2][0])&&
+                    (clientX)<Math.max(shapes[i][1][0], shapes[i][2][0])&&
+                    (clientY)>Math.min(shapes[i][1][1], shapes[i][2][1])&&
+                    (clientY)<Math.max(shapes[i][1][1], shapes[i][2][1])){
+                        selected = i;
+                        found = 1;
+                        break;
+                    }
+                } else if (shapes[i][0]=="rect"){
+                    if ((clientX)>Math.min(shapes[i][1][0], shapes[i][2][0])&&
+                    (clientX)<Math.max(shapes[i][1][0], shapes[i][2][0])&&
+                    (clientY)>Math.min(shapes[i][1][1], shapes[i][2][1])&&
+                    (clientY)<Math.max(shapes[i][1][1], shapes[i][2][1])){
+                        selected = i;
+                        found = 1;
+                        break;
+                    }
+                } else if (shapes[i][0]=="circle"){
+                    let r0 = Math.sqrt((shapes[i][2][0]-shapes[i][1][0])**2+(shapes[i][2][1]-shapes[i][1][1])**2)/2;
+                    let r = Math.sqrt((clientX - shapes[i][1][0]/2 - shapes[i][2][0]/2)**2+(clientY - shapes[i][1][1]/2 - shapes[i][2][1]/2)**2);
+                    if (r<r0){
+                        selected = i;
+                        found = 1;
+                        break;
+                    }
+                } else if (shapes[i][0]=="tri"){
+                    let areaofT = areaofTriangle(shapes[i][2][0] - shapes[i][1][0], distanceBtwnPoints(shapes[i][2][0], shapes[i][2][1], shapes[i][1][0] / 2 + shapes[i][2][0] / 2, shapes[i][1][1]), distanceBtwnPoints(shapes[i][2][0], shapes[i][2][1], shapes[i][1][0] / 2 + shapes[i][2][0] / 2, shapes[i][1][1]));
+                    let a1 = areaofTriangle(distanceBtwnPoints(shapes[i][1][0] / 2 + shapes[i][2][0] / 2, shapes[i][1][1], clientX, clientY), distanceBtwnPoints(clientX, clientY, shapes[i][2][0], shapes[i][2][1]), distanceBtwnPoints(shapes[i][2][0], shapes[i][2][1], shapes[i][1][0] / 2 + shapes[i][2][0] / 2, shapes[i][1][1]));
+                    let a2 = areaofTriangle(shapes[i][2][0] - shapes[i][1][0], distanceBtwnPoints(clientX, clientY, shapes[i][2][0], shapes[i][2][1]), distanceBtwnPoints(clientX, clientY, shapes[i][1][0], shapes[i][2][1]));
+                    let a3 = areaofTriangle(distanceBtwnPoints(shapes[i][1][0] / 2 + shapes[i][2][0] / 2, shapes[i][1][1], clientX, clientY), distanceBtwnPoints(shapes[i][2][0], shapes[i][2][1], shapes[i][1][0] / 2 + shapes[i][2][0] / 2, shapes[i][1][1]), distanceBtwnPoints(clientX, clientY, shapes[i][1][0], shapes[i][2][1]));
+                    if ((a1 + a2 + a3 - areaofT)<1){
+                        selected = i;
+                        found = 1;
+                        break;
+                    }
+                } else if (shapes[i][0]=="text"){
+                    ctx.font = `${4*shapes[i][4]}px Arial`;
+                    if ((clientX)>shapes[i][1][0]&&
+                    (clientX)<(shapes[i][1][0]+ctx.measureText(shapes[i][5]).width)&&
+                    (clientY)>(shapes[i][1][1]-4*shapes[i][4])&&
+                    (clientY)<shapes[i][1][1]){
+                        selected = i;
+                        found = 1;
+                        break;
+                    }
+                } else if (shapes[i][0]=="img"){
+                    if ((clientX)>Math.min(shapes[i][1][0], shapes[i][2][0])&&
+                    (clientX)<Math.max(shapes[i][1][0], shapes[i][2][0])&&
+                    (clientY)>Math.min(shapes[i][1][1], shapes[i][2][1])&&
+                    (clientY)<Math.max(shapes[i][1][1], shapes[i][2][1])){
+                        selected = i;
+                        found = 1;
+                        break;
+                    }
                 }
             }
         }
-        
-        }
         if (found == 1){
-            tempCoords[0] = event.clientX;
-            tempCoords[1] = event.clientY;
+            tempCoords[1] = clientY;
+            tempCoords[0] = clientX;
             dragselected = 1;
             if (shapes[selected][0]!="img"){
                 lineWidth = shapes[selected][4];
@@ -510,128 +516,61 @@ canvas.addEventListener('mousedown', (event) => {
                 localStorage.setItem("color", color);
                 lineWidthSlider.style.accentColor=color;
             }
-            
+
         } else {
             selected = -1;
         }
     } else if (mode == "brush"){
-        // ctx.strokeStyle = color;
         ctx.beginPath();
-        // ctx.lineWidth = lineWidth;
-        // ctx.fillRect(event.clientX, event.clientY, 2, 2);
         startCoords= [];
-        startCoords[0] = event.clientX;
-        startCoords[1] = event.clientY;
-        tempCoords[0] = event.clientX;
-        tempCoords[1] = event.clientY;
+        startCoords[0] = clientX;
+        startCoords[1] = clientY;
+        tempCoords[0] = clientX;
+        tempCoords[1] = clientY;
         ctx.moveTo(startCoords[0], startCoords[1]);
         ctx.stroke();
-        // console.log("Drawing being made");
         shapes.push([]);
-    } else if (mode == "line"){
+    } else if (mode == "line" || mode == "rect" || mode == "square" || mode == "circle" || mode == "tri" || mode == "img" || mode == "text") {
         ctx.strokeStyle = color;
         ctx.beginPath();
-        tempCoords[0] = event.clientX;
-        tempCoords[1] = event.clientY;
+        tempCoords[0] = clientX;
+        tempCoords[1] = clientY;
         ctx.lineWidth = lineWidth;
-        ctx.moveTo(event.clientX, event.clientY);
-        console.log("Drawing being made");
-    } else if (mode == "rect"){
-        ctx.strokeStyle = color;
-        ctx.beginPath();
-        ctx.lineWidth = lineWidth;
-        ctx.moveTo(event.clientX, event.clientY);
-        tempCoords[0] = event.clientX;
-        tempCoords[1] = event.clientY;
-        console.log(tempCoords);
-        console.log("Drawing being made");
-    } else if (mode == "square"){
-        ctx.strokeStyle = color;
-        ctx.beginPath();
-        ctx.lineWidth = lineWidth;
-        ctx.moveTo(event.clientX, event.clientY);
-        tempCoords[0] = event.clientX;
-        tempCoords[1] = event.clientY;
-        console.log(tempCoords);
-        console.log("Drawing being made");
-    } else if (mode == "circle"){
-        ctx.strokeStyle = color;
-        ctx.beginPath();
-        ctx.lineWidth = lineWidth;
-        ctx.moveTo(event.clientX, event.clientY);
-        tempCoords[0] = event.clientX;
-        tempCoords[1] = event.clientY;
-        console.log(tempCoords);
-        console.log("Drawing being made");
-    } else if (mode == "tri"){
-        ctx.strokeStyle = color;
-        tempCoords[0] = event.clientX;
-        tempCoords[1] = event.clientY;
-        ctx.beginPath();
-        ctx.lineWidth = lineWidth;
-        console.log(tempCoords);
-        console.log("Drawing being made");
-    } else if (mode == "img"){
-        ctx.strokeStyle = color;
-        tempCoords[0] = event.clientX;
-        tempCoords[1] = event.clientY;
-        ctx.beginPath();
-        ctx.lineWidth = lineWidth;
-        console.log(tempCoords);
-        console.log("Drawing being made");
-    } else if (mode == "text"){
-        ctx.strokeStyle = color;
-        tempCoords[0] = event.clientX;
-        tempCoords[1] = event.clientY;
-        ctx.beginPath();
-        ctx.lineWidth = lineWidth;
-        console.log(tempCoords);
+        if (mode == "line" || mode == "rect" || mode == "square" || mode == "circle") {
+            ctx.moveTo(clientX, clientY);
+        }
         console.log("Drawing being made");
     }
     drawCanvas(shapes);
-});
-window.addEventListener('mouseup', (event) => {
+}
+
+function mouseTouchEnd(event) {
     if (canvasDown){
         canvasDown = false;
     } else {
         return;
     }
+    const { clientX, clientY } = getCoords(event);
     drawingRn = false;
     drawCanvas(shapes);
     console.log("Drawing stopped");
-    // console.log(stateStack[0]);
-    // console.log(stateStack[1]);
-    // console.log(stateStack[2]);
-    // console.log(stateStack[3]);
     if (mode=="pointer"){
         if (resize!=-1){
             resize = -1;
             drawCanvas(shapes);
         }
         if (dragselected==1){
-            // shapes[selected][1][0] += (event.clientX-tempCoords[0]);
-            // shapes[selected][1][1] += (event.clientY-tempCoords[1]);
-            // shapes[selected][2][0] += (event.clientX-tempCoords[0]);
-            // shapes[selected][2][1] += (event.clientY-tempCoords[1]);
             dragselected = 0;
             console.log("dragslected zero");
             drawCanvas(shapes);
         }
     } else if (mode == 'brush'){
-        // const brushShapeArr = [];
-        // brushShapeArr.push("brush");
-        // brushShapeArr.push([tempCoords[0], tempCoords[1]]);
-        // brushShapeArr.push([event.clientX, event.clientY]);
-        // brushShapeArr.push(color);
-        // brushShapeArr.push(lineWidth);
-        // brushShapeArr.push(brushArray);
-        // shapes.push(brushShapeArr);
         brushArray = [];
     } else if (mode == "line"){
         const lineArr = [];
         lineArr.push("line");
         lineArr.push([tempCoords[0], tempCoords[1]]);
-        lineArr.push([event.clientX, event.clientY]);
+        lineArr.push([clientX, clientY]);
         lineArr.push(color);
         lineArr.push(lineWidth);
         shapes.push(lineArr);
@@ -640,7 +579,7 @@ window.addEventListener('mouseup', (event) => {
         const rectArr = [];
         rectArr.push("rect");
         rectArr.push([tempCoords[0], tempCoords[1]]);
-        rectArr.push([event.clientX, event.clientY]);
+        rectArr.push([clientX, clientY]);
         rectArr.push(color);
         rectArr.push(lineWidth);
         shapes.push(rectArr);
@@ -658,7 +597,7 @@ window.addEventListener('mouseup', (event) => {
         const cirArr = [];
         cirArr.push("circle");
         cirArr.push([tempCoords[0], tempCoords[1]]);
-        cirArr.push([event.clientX, event.clientY]);
+        cirArr.push([clientX, clientY]);
         cirArr.push(color);
         cirArr.push(lineWidth);
         shapes.push(cirArr);
@@ -667,7 +606,7 @@ window.addEventListener('mouseup', (event) => {
         const triArr = [];
         triArr.push("tri");
         triArr.push([tempCoords[0], tempCoords[1]]);
-        triArr.push([event.clientX, event.clientY]);
+        triArr.push([clientX, clientY]);
         triArr.push(color);
         triArr.push(lineWidth);
         shapes.push(triArr);
@@ -687,8 +626,8 @@ window.addEventListener('mouseup', (event) => {
         const imgArr = [];
         imgArr.push("img");
         imgArr.push([tempCoords[0], tempCoords[1]]);
-        imgArr.push([event.clientX, event.clientY]);
-        imgArr.push(`https://picsum.photos/id/${(Math.floor(Math.random() * 101)+1)}/${Math.abs(tempCoords[0]-event.clientX)}/${Math.abs(tempCoords[1]-event.clientY)}`);
+        imgArr.push([clientX, clientY]);
+        imgArr.push(`https://picsum.photos/id/${(Math.floor(Math.random() * 101) + 1)}/${Math.abs(tempCoords[0] - clientX)}/${Math.abs(tempCoords[1] - clientY)}`);
         shapes.push(imgArr);
     }
     console.log(JSON.stringify(shapes));
@@ -697,167 +636,186 @@ window.addEventListener('mouseup', (event) => {
     localStorage.setItem("mode", mode);
     localStorage.setItem("color", color);
     localStorage.setItem("lineWidth", lineWidth);
+}
+
+function mouseTouchMove(event) {
+    if (drawingRn!=1) return;
     
-    
-});
-window.addEventListener('mousemove', (event) => {
-    if (drawingRn){
-        console.log("pointer moving");
-        drawCanvas(shapes);
-        if (mode=="pointer"){
-            if (resize!=-1){
-                if (shapes[selected][0]=="square"){
-                    if (resize == 1){
-                        shapes[selected][1][0] += (event.clientX-tempCoords[0]);
-                        shapes[selected][1][1] += (event.clientX-tempCoords[0]);
-                        tempCoords[0]=event.clientX;
-                        tempCoords[1]=event.clientY;
-                        drawCanvas(shapes);
-                    } else if (resize == 2){
-                        shapes[selected][2][0] += (event.clientX-tempCoords[0]);
-                        shapes[selected][2][1] += (event.clientX-tempCoords[0]);
-                        tempCoords[0]=event.clientX;
-                        tempCoords[1]=event.clientY;
-                        drawCanvas(shapes);
-                    }
-                } else {
-                    if (resize == 1){
-                        shapes[selected][1][0] += (event.clientX-tempCoords[0]);
-                        shapes[selected][1][1] += (event.clientY-tempCoords[1]);
-                        tempCoords[0]=event.clientX;
-                        tempCoords[1]=event.clientY;
-                        drawCanvas(shapes);
-                    } else if (resize == 2){
-                        shapes[selected][2][0] += (event.clientX-tempCoords[0]);
-                        shapes[selected][2][1] += (event.clientY-tempCoords[1]);
-                        tempCoords[0]=event.clientX;
-                        tempCoords[1]=event.clientY;
-                        drawCanvas(shapes);
-                    }
-                }
-            } else
-            if (dragselected==1){
-                if (shapes[selected][0]!="brush"){
-                    shapes[selected][1][0] += (event.clientX-tempCoords[0]);
-                    shapes[selected][1][1] += (event.clientY-tempCoords[1]);
-                    shapes[selected][2][0] += (event.clientX-tempCoords[0]);
-                    shapes[selected][2][1] += (event.clientY-tempCoords[1]);
-                    tempCoords[0]=event.clientX;
-                    tempCoords[1]=event.clientY;
+    const {clientX, clientY} = getCoords(event);
+    console.log("pointer moving");
+    drawCanvas(shapes);
+
+    if (mode=="pointer"){
+        if (resize!=-1){
+            if (shapes[selected][0]=="square"){
+                if (resize==1){
+                    shapes[selected][1][0] += (clientX-tempCoords[0]);
+                    shapes[selected][1][1] += (clientX-tempCoords[0]);
+                    tempCoords[0]=clientX;
+                    tempCoords[1]=clientY;
                     drawCanvas(shapes);
-                } else {
-                    shapes[selected][1][0] += (event.clientX-tempCoords[0]);
-                    shapes[selected][1][1] += (event.clientY-tempCoords[1]);
-                    for (let j = shapes[selected][5].length-1; j >= 0; j--){
-                        shapes[selected][5][j][0] += (event.clientX-tempCoords[0]);
-                        shapes[selected][5][j][1] += (event.clientY-tempCoords[1]);
-                    }
-                    tempCoords[0]=event.clientX;
-                    tempCoords[1]=event.clientY;
-                }
-            }
-        } else if (mode == 'brush'){
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.moveTo(tempCoords[0], tempCoords[1]);
-            ctx.lineTo(event.clientX, event.clientY);
-            tempCoords[0] = event.clientX;
-            tempCoords[1] = event.clientY;
-            brushArray.push([event.clientX, event.clientY]);
-            ctx.stroke();
-            
-            shapes.pop();
-            const brushShapeArr = [];
-            brushShapeArr.push("brush");
-            brushShapeArr.push([startCoords[0], startCoords[1]]);
-            brushShapeArr.push([event.clientX, event.clientY]);
-            brushShapeArr.push(color);
-            brushShapeArr.push(lineWidth);
-            brushShapeArr.push(brushArray);
-            shapes.push(brushShapeArr);
-            
-        } else if (mode == "line"){
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.moveTo(tempCoords[0], tempCoords[1]);
-            ctx.lineTo(event.clientX, event.clientY);
-            ctx.stroke();
-        } else if (mode == "rect"){
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.moveTo(tempCoords[0], tempCoords[1]);
-            ctx.strokeRect(tempCoords[0], tempCoords[1], event.clientX-tempCoords[0], event.clientY-tempCoords[1]);
-        } else if (mode == "square"){
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.moveTo(tempCoords[0], tempCoords[1]);
-            if (Math.abs(event.clientX - tempCoords[0]) > Math.abs(event.clientY - tempCoords[1])){
-                if ((event.clientX - tempCoords[0])*((event.clientY - tempCoords[1]))>0){
-                    ctx.lineTo(tempCoords[0], event.clientY);
-                    ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], event.clientY);
-                    ctx.lineTo(event.clientY - tempCoords[1] + tempCoords[0], tempCoords[1]);
-                    ctx.lineTo(tempCoords[0], tempCoords[1]);
-                    ctx.lineTo(tempCoords[0], event.clientY);
-                    sqCoords[0] = (event.clientY - tempCoords[1] + tempCoords[0]);
-                    sqCoords[1] = event.clientY;
-                } else {
-                    ctx.lineTo(tempCoords[0], event.clientY);
-                    ctx.lineTo(-event.clientY + tempCoords[1] + tempCoords[0], event.clientY);
-                    ctx.lineTo(-event.clientY + tempCoords[1] + tempCoords[0], tempCoords[1]);
-                    ctx.lineTo(tempCoords[0], tempCoords[1]);
-                    ctx.lineTo(tempCoords[0], event.clientY);
-                    sqCoords[0] = -event.clientY + tempCoords[1] + tempCoords[0];
-                    sqCoords[1] = event.clientY;
+                } else if (resize==2){
+                    shapes[selected][2][0] += (clientX-tempCoords[0]);
+                    shapes[selected][2][1] += (clientX-tempCoords[0]);
+                    tempCoords[0]=clientX;
+                    tempCoords[1]=clientY;
+                    drawCanvas(shapes);
                 }
             } else {
-                if ((event.clientX - tempCoords[0])*((event.clientY - tempCoords[1]))>0){
-                    ctx.lineTo(event.clientX, tempCoords[1]);
-                    ctx.lineTo(event.clientX, event.clientX - tempCoords[0] + tempCoords[1]);
-                    ctx.lineTo(tempCoords[0], tempCoords[1] + event.clientX - tempCoords[0]);
-                    ctx.lineTo(tempCoords[0], tempCoords[1]);
-                    ctx.lineTo(event.clientX, tempCoords[1]);
-                    sqCoords[0] = event.clientX;
-                    sqCoords[1] = event.clientX - tempCoords[0] + tempCoords[1];
-                } else {
-                    ctx.lineTo(event.clientX, tempCoords[1]);
-                    ctx.lineTo(event.clientX, -event.clientX + tempCoords[0] + tempCoords[1]);
-                    ctx.lineTo(tempCoords[0], tempCoords[1] - event.clientX + tempCoords[0]);
-                    ctx.lineTo(tempCoords[0], tempCoords[1]);
-                    ctx.lineTo(event.clientX, tempCoords[1]);
-                    sqCoords[0] = event.clientX;
-                    sqCoords[1] = -event.clientX + tempCoords[0] + tempCoords[1];
-                }  
+                if (resize==1){
+                    shapes[selected][1][0] += (clientX-tempCoords[0]);
+                    shapes[selected][1][1] += (clientY-tempCoords[1]);
+                    tempCoords[0]=clientX;
+                    tempCoords[1]=clientY;
+                    drawCanvas(shapes);
+                } else if (resize==2){
+                    shapes[selected][2][0] += (clientX-tempCoords[0]);
+                    shapes[selected][2][1] += (clientY-tempCoords[1]);
+                    tempCoords[0]=clientX;
+                    tempCoords[1]=clientY;
+                    drawCanvas(shapes);
+                }
             }
-            ctx.stroke();
-            
-        } else if (mode == "circle"){
-            ctx.moveTo(tempCoords[0], tempCoords[1]);
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            let diameter = Math.sqrt((event.clientX - tempCoords[0])**2 + (event.clientY - tempCoords[1])**2);
-            ctx.arc((tempCoords[0]+event.clientX)/2, (tempCoords[1]+event.clientY)/2, diameter/2, 0, 2*Math.PI);
-            ctx.stroke();
-        } else if (mode == "tri"){
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.moveTo(tempCoords[0], event.clientY);
-            ctx.lineTo(event.clientX, event.clientY);
-            ctx.lineTo((event.clientX+tempCoords[0])/2, tempCoords[1]);
-            ctx.lineTo(tempCoords[0], event.clientY);
-            ctx.lineTo(event.clientX, event.clientY);
-            ctx.stroke();
-        } else if (mode == "img"){
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.moveTo(tempCoords[0], tempCoords[1]);
-            ctx.strokeRect(tempCoords[0], tempCoords[1], event.clientX-tempCoords[0], event.clientY-tempCoords[1]);
+        } else if (dragselected==1){
+            if (shapes[selected][0]!="brush") {
+                shapes[selected][1][0] += (clientX-tempCoords[0]);
+                shapes[selected][1][1] += (clientY-tempCoords[1]);
+                shapes[selected][2][0] += (clientX-tempCoords[0]);
+                shapes[selected][2][1] += (clientY-tempCoords[1]);
+                tempCoords[0]=clientX;
+                tempCoords[1]=clientY;
+                drawCanvas(shapes);
+            } else {
+                shapes[selected][1][0] += (clientX-tempCoords[0]);
+                shapes[selected][1][1] += (clientY-tempCoords[1]);
+                for (let j = shapes[selected][5].length - 1; j >= 0; j--) {
+                    shapes[selected][5][j][0] += (clientX-tempCoords[0]);
+                    shapes[selected][5][j][1] += (clientY-tempCoords[1]);
+                }
+                tempCoords[0]=clientX;
+                tempCoords[1]=clientY;
+            }
         }
+    } else if (mode == 'brush'){
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.moveTo(tempCoords[0], tempCoords[1]);
+        ctx.lineTo(clientX, clientY);
+        tempCoords[0] = clientX;
+        tempCoords[1] = clientY;
+        brushArray.push([clientX, clientY]);
+        ctx.stroke();
+
+        shapes.pop();
+        const brushShapeArr = [];
+        brushShapeArr.push("brush");
+        brushShapeArr.push([startCoords[0], startCoords[1]]);
+        brushShapeArr.push([clientX, clientY]);
+        brushShapeArr.push(color);
+        brushShapeArr.push(lineWidth);
+        brushShapeArr.push(brushArray);
+        shapes.push(brushShapeArr);
+
+    } else if (mode == "line"){
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.moveTo(tempCoords[0], tempCoords[1]);
+        ctx.lineTo(clientX, clientY);
+        ctx.stroke();
+    } else if (mode == "rect"){
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.moveTo(tempCoords[0], tempCoords[1]);
+        ctx.strokeRect(tempCoords[0], tempCoords[1], clientX - tempCoords[0], clientY - tempCoords[1]);
+    } else if (mode == "square"){
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.moveTo(tempCoords[0], tempCoords[1]);
+        if (Math.abs(clientX - tempCoords[0]) > Math.abs(clientY - tempCoords[1])){
+            if ((clientX - tempCoords[0]) * ((clientY - tempCoords[1])) > 0) {
+                ctx.lineTo(tempCoords[0], clientY);
+                ctx.lineTo(clientY - tempCoords[1] + tempCoords[0], clientY);
+                ctx.lineTo(clientY - tempCoords[1] + tempCoords[0], tempCoords[1]);
+                ctx.lineTo(tempCoords[0], tempCoords[1]);
+                ctx.lineTo(tempCoords[0], clientY);
+                sqCoords[0] = clientY - tempCoords[1] + tempCoords[0];
+                sqCoords[1] = clientY;
+            } else {
+                ctx.lineTo(tempCoords[0], clientY);
+                ctx.lineTo(-clientY + tempCoords[1] + tempCoords[0], clientY);
+                ctx.lineTo(-clientY + tempCoords[1] + tempCoords[0], tempCoords[1]);
+                ctx.lineTo(tempCoords[0], tempCoords[1]);
+                ctx.lineTo(tempCoords[0], clientY);
+                sqCoords[0] = -clientY + tempCoords[1] + tempCoords[0];
+                sqCoords[1] = clientY;
+            }
+        } else {
+            if ((clientX - tempCoords[0]) * ((clientY - tempCoords[1])) > 0){
+                ctx.lineTo(clientX, tempCoords[1]);
+                ctx.lineTo(clientX, clientX - tempCoords[0] + tempCoords[1]);
+                ctx.lineTo(tempCoords[0], tempCoords[1] + clientX - tempCoords[0]);
+                ctx.lineTo(tempCoords[0], tempCoords[1]);
+                ctx.lineTo(clientX, tempCoords[1]);
+                sqCoords[0] = clientX;
+                sqCoords[1] = clientX - tempCoords[0] + tempCoords[1];
+            } else {
+                ctx.lineTo(clientX, tempCoords[1]);
+                ctx.lineTo(clientX, -clientX + tempCoords[0] + tempCoords[1]);
+                ctx.lineTo(tempCoords[0], tempCoords[1] - clientX + tempCoords[0]);
+                ctx.lineTo(tempCoords[0], tempCoords[1]);
+                ctx.lineTo(clientX, tempCoords[1]);
+                sqCoords[0] = clientX;
+                sqCoords[1] = -clientX + tempCoords[0] + tempCoords[1];
+            }
+        }
+        ctx.stroke();
+
+    } else if (mode == "circle"){
+        ctx.moveTo(tempCoords[0], tempCoords[1]);
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        let diameter = Math.sqrt((clientX - tempCoords[0])**2+(clientY - tempCoords[1])**2);
+        ctx.arc((tempCoords[0] + clientX)/2, (tempCoords[1] + clientY)/2, diameter/2, 0, 2*Math.PI);
+        ctx.stroke();
+    } else if (mode == "tri"){
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.moveTo(tempCoords[0], clientY);
+        ctx.lineTo(clientX, clientY);
+        ctx.lineTo((clientX + tempCoords[0]) / 2, tempCoords[1]);
+        ctx.lineTo(tempCoords[0], clientY);
+        ctx.lineTo(clientX, clientY);
+        ctx.stroke();
+    } else if (mode == "img"){
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.moveTo(tempCoords[0], tempCoords[1]);
+        ctx.strokeRect(tempCoords[0], tempCoords[1], clientX - tempCoords[0], clientY - tempCoords[1]);
     }
+}
+
+
+canvas.addEventListener('mousedown', mouseTouchStart);
+window.addEventListener('mousemove', mouseTouchMove);
+window.addEventListener('mouseup', mouseTouchEnd);
+
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault(); 
+    mouseTouchStart(e);
+});
+
+window.addEventListener('touchmove', (e) => {
+    if (drawingRn) e.preventDefault(); 
+    mouseTouchMove(e);
+});
+
+window.addEventListener('touchend', (e) => {
+    mouseTouchEnd(e);
 });
