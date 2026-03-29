@@ -88,11 +88,11 @@
 }
 
 .lineWidth {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: auto auto;
 }
 
 .slider {
-    margin-left: 1rem;
-    /* margin-right: 1rem; */
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
 }
